@@ -2,7 +2,8 @@
 
 in vec3 Color;
 
-uniform vec3 compliment = vec3(-1,-1,-1);
+uniform vec3 SolidColor = vec3(-1,-1,-1);
+uniform bool Compliment = false;
 
 out vec4 Fragment;
 
@@ -10,15 +11,14 @@ void main()
 {
 	Fragment = vec4(Color,1);
 	
-	if(compliment.r != -1.0 && compliment.g != -1.0 && compliment.b != -1.0)
-	{
-		compliment.r = (1 - compliment.r);
-		compliment.g = (1 - compliment.g);
-		compliment.b = (1-compliment.b);
+	if(SolidColor.r != -1.0 && SolidColor.g != -1.0 && SolidColor.b != -1.0)
+	{	
+		Fragment = vec4(SolidColor, 1);
 		
-		Fragment = vec4(compliment, 1);
 	}
-		
-
+	
+	if(Compliment == true)
+		Fragment = vec4(vec3(1.0) - Fragment.xyz, 1.0);
+	
 	return;
 }

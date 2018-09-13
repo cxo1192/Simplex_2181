@@ -70,6 +70,7 @@ void AppClass::InitOpenGL(void)
 }
 void AppClass::InitShaders(void)
 {
+
 	m_uShaderProgramID = LoadShaders("Shaders//BasicColor.vs", "Shaders//E03.fs");//this is my shader in the binary file
 	glUseProgram(m_uShaderProgramID);
 }
@@ -119,7 +120,7 @@ void AppClass::ProcessKeyboard(sf::Event a_event)
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num0))
 		m_v3Color = glm::vec3(-1.0f, -1.0f, -1.0f);
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::C))/////my addition
-		m_v3Color = glm::vec3(0.0f, 0.0f, 0.0f);
+		m_bCompliment = !m_bCompliment;
 		
 }
 void AppClass::Display(void)
@@ -128,8 +129,11 @@ void AppClass::Display(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//read uniforms and send values
-	GLuint compliment = glGetUniformLocation(m_uShaderProgramID, "compliment");
-	glUniform3f(compliment, m_v3Color.r, m_v3Color.g, m_v3Color.b);
+	GLuint SolidColor = glGetUniformLocation(m_uShaderProgramID, "SolidColor");
+	glUniform3f(SolidColor, m_v3Color.r, m_v3Color.g, m_v3Color.b);
+
+	GLuint Compliment = glGetUniformLocation(m_uShaderProgramID, "Compliment");
+	glUniform1i(Compliment, m_bCompliment);
 
 	//draw content
 	glDrawArrays(GL_TRIANGLES, 0, 3);

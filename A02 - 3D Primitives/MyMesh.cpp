@@ -1,4 +1,56 @@
 #include "MyMesh.h"
+void MyMesh::GenerateCircle(float a_fRadius, int a_nSubdivisions, vector3 a_v3Color)
+{
+	Release();
+	Init();
+
+	if (a_fRadius < 0.01f)
+		a_fRadius = 0.01f;
+
+	if (a_nSubdivisions < 3)
+		a_nSubdivisions = 3;
+	if (a_nSubdivisions > 360)
+		a_nSubdivisions = 360;
+
+	/*
+		Calculate a_nSubdivisions number of points around a center point in a radial manner
+		then call the AddTri function to generate a_nSubdivision number of faces
+
+	*/
+
+	float theta = (360 / a_nSubdivisions)* PI / 180;
+	vector3 lastVertex = vector3(0, 0, 0);
+	vector3 firstOuterVertex = vector3(0, 0, 0);
+
+	for (int i = 0; i <= a_nSubdivisions; i++) {
+
+		float x = a_fRadius * cos(theta * i);
+
+		float y = a_fRadius * sin(theta * i);
+
+		vector3 thisVertex = vector3(x, y, 0);
+
+		if (i == 0) {
+			lastVertex = thisVertex;
+			firstOuterVertex = thisVertex;
+		}
+		else if (i == a_nSubdivisions) {
+			AddTri(vector3(0, 0, 0), lastVertex, firstOuterVertex);
+		}
+		else
+		{
+			AddTri(vector3(0, 0, 0), lastVertex, thisVertex);
+			lastVertex = thisVertex;
+		}
+		//AddVertexPosition(vector3(x, y, 1));
+	}
+
+
+	// Adding information about color
+	CompleteMesh(a_v3Color);
+	CompileOpenGL3X();
+}
+
 void MyMesh::Init(void)
 {
 	m_bBinded = false;
@@ -276,8 +328,38 @@ void MyMesh::GenerateCone(float a_fRadius, float a_fHeight, int a_nSubdivisions,
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+	//GenerateCube(a_fRadius * 2.0f, a_v3Color);
 	// -------------------------------
+
+	float theta = (360 / a_nSubdivisions)* PI / 180;
+	vector3 lastVertex = vector3(0, 0, 0);
+	vector3 firstOuterVertex = vector3(0, 0, 0);
+	vector3 tip = vector3(0, 0, a_fHeight); //might have to change height to be negative
+
+	for (int i = 0; i <= a_nSubdivisions; i++) {
+
+		float x = a_fRadius * cos(theta * i);
+
+		float y = a_fRadius * sin(theta * i);
+
+		vector3 thisVertex = vector3(x, y, 0);
+
+		if (i == 0) {
+			lastVertex = thisVertex;
+			firstOuterVertex = thisVertex;
+		}
+		else if (i == a_nSubdivisions) {
+			AddTri(vector3(0, 0, 0), lastVertex, firstOuterVertex);
+			AddTri(firstOuterVertex, lastVertex, tip);
+		}
+		else
+		{
+			AddTri(vector3(0, 0, 0), lastVertex, thisVertex);
+			AddTri(thisVertex, lastVertex, tip);
+			lastVertex = thisVertex;
+		}
+		//AddVertexPosition(vector3(x, y, 1));
+	}
 
 	// Adding information about color
 	CompleteMesh(a_v3Color);

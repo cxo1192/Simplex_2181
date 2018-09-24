@@ -382,8 +382,44 @@ void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisi
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+	//GenerateCube(a_fRadius * 2.0f, a_v3Color);
 	// -------------------------------
+	float theta = (360 / a_nSubdivisions)* PI / 180;
+	vector3 lastVertex = vector3(0, 0, 0);
+	vector3 firstOuterVertex = vector3(0, 0, 0);
+	vector3 lastVertexTop = vector3(0, 0, a_fHeight);
+	vector3 firstOuterVertexTop = vector3(0, 0, a_fHeight);
+
+	for (int i = 0; i <= a_nSubdivisions; i++) {
+
+		float x = a_fRadius * cos(theta * i);
+
+		float y = a_fRadius * sin(theta * i);
+
+		vector3 thisVertex = vector3(x, y, 0);
+		vector3 thisVertexTop = vector3(x, y, a_fHeight);
+
+		if (i == 0) {
+			lastVertex = thisVertex;
+			firstOuterVertex = thisVertex;
+			lastVertexTop = thisVertexTop;
+			firstOuterVertexTop = thisVertexTop;
+		}
+		else if (i == a_nSubdivisions) {///////////////////////////////////////////Tris for top circle need to be flipped
+			AddTri(vector3(0, 0, 0), lastVertex, firstOuterVertex);
+			AddTri(vector3(0, 0, a_fHeight), lastVertexTop, firstOuterVertexTop);
+			AddQuad(firstOuterVertex, lastVertex, firstOuterVertexTop, lastVertexTop);   //////////////////////Quads need to be flipped
+		}
+		else
+		{
+			AddTri(vector3(0, 0, 0), lastVertex, thisVertex);
+			AddTri(vector3(0, 0, a_fHeight), lastVertexTop, thisVertexTop);
+			AddQuad(thisVertex, lastVertex, thisVertexTop, lastVertexTop);
+			lastVertex = thisVertex;
+			lastVertexTop = thisVertexTop;
+
+		}
+	}
 
 	// Adding information about color
 	CompleteMesh(a_v3Color);

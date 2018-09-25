@@ -405,7 +405,7 @@ void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisi
 			lastVertexTop = thisVertexTop;
 			firstOuterVertexTop = thisVertexTop;
 		}
-		else if (i == a_nSubdivisions) {///////////////////////////////////////////Tris for top circle need to be flipped
+		else if (i == a_nSubdivisions) {
 			AddTri(lastVertex, vector3(0, 0, 0), firstOuterVertex);
 			AddTri(vector3(0, 0, a_fHeight), lastVertexTop, firstOuterVertexTop);
 			AddQuad(lastVertex, firstOuterVertex, lastVertexTop, firstOuterVertexTop);  
@@ -450,7 +450,61 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 	// Replace this with your code
 	GenerateCube(a_fOuterRadius * 2.0f, a_v3Color);
 	// -------------------------------
+	/*
+	float theta = (360 / a_nSubdivisions)* PI / 180;
+	vector3 lastVertex = vector3(0, 0, 0);
+	vector3 firstOuterVertex = vector3(0, 0, 0);
+	vector3 firstOuterVertex1 = vector3(0, 0, 0);
+	vector3 lastVertexTop = vector3(0, 0, a_fHeight);
+	vector3 firstOuterVertexTop = vector3(0, 0, a_fHeight);
 
+	for (int i = 0; i <= a_nSubdivisions; i++) {
+
+		float x = a_fOuterRadius * cos(theta * i);
+
+		float y = a_fOuterRadius * sin(theta * i);
+
+		float x1 = a_fInnerRadius * cos(theta * i);
+
+		float y1 = a_fInnerRadius * sin(theta * i);
+
+
+		
+		vector3 thisVertex = vector3(x, y, 0);
+		vector3 thisVertexTop = vector3(x, y, a_fHeight);
+
+
+		
+
+
+		vector3 thisVertex1 = vector3(x1, y1, 0);
+		vector3 thisVertexTop1 = vector3(x1, y1, a_fHeight);
+
+
+
+
+		if (i == 0) {
+			lastVertex = thisVertex;
+			firstOuterVertex = thisVertex;
+			lastVertexTop = thisVertexTop;
+			firstOuterVertexTop = thisVertexTop;
+		}
+		else if (i == a_nSubdivisions) {
+			AddTri(lastVertex, vector3(0, 0, 0), firstOuterVertex);
+			AddTri(vector3(0, 0, a_fHeight), lastVertexTop, firstOuterVertexTop);
+			AddQuad(lastVertex, firstOuterVertex, lastVertexTop, firstOuterVertexTop);
+		}
+		else
+		{
+			AddTri(lastVertex, vector3(0, 0, 0), thisVertex);
+			AddTri(vector3(0, 0, a_fHeight), lastVertexTop, thisVertexTop);
+			AddQuad(lastVertex, thisVertex, lastVertexTop, thisVertexTop);
+			lastVertex = thisVertex;
+			lastVertexTop = thisVertexTop;
+
+		}
+	}
+	*/
 	// Adding information about color
 	CompleteMesh(a_v3Color);
 	CompileOpenGL3X();

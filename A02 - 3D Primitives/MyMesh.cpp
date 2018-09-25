@@ -406,15 +406,15 @@ void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisi
 			firstOuterVertexTop = thisVertexTop;
 		}
 		else if (i == a_nSubdivisions) {///////////////////////////////////////////Tris for top circle need to be flipped
-			AddTri(vector3(0, 0, 0), lastVertex, firstOuterVertex);
+			AddTri(lastVertex, vector3(0, 0, 0), firstOuterVertex);
 			AddTri(vector3(0, 0, a_fHeight), lastVertexTop, firstOuterVertexTop);
-			AddQuad(firstOuterVertex, lastVertex, firstOuterVertexTop, lastVertexTop);   //////////////////////Quads need to be flipped
+			AddQuad(lastVertex, firstOuterVertex, lastVertexTop, firstOuterVertexTop);  
 		}
 		else
 		{
-			AddTri(vector3(0, 0, 0), lastVertex, thisVertex);
+			AddTri(lastVertex, vector3(0, 0, 0), thisVertex);
 			AddTri(vector3(0, 0, a_fHeight), lastVertexTop, thisVertexTop);
-			AddQuad(thisVertex, lastVertex, thisVertexTop, lastVertexTop);
+			AddQuad(lastVertex, thisVertex, lastVertexTop, thisVertexTop);
 			lastVertex = thisVertex;
 			lastVertexTop = thisVertexTop;
 

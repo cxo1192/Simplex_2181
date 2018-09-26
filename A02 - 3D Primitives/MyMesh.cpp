@@ -334,7 +334,7 @@ void MyMesh::GenerateCone(float a_fRadius, float a_fHeight, int a_nSubdivisions,
 	float theta = (360 / a_nSubdivisions)* PI / 180;
 	vector3 lastVertex = vector3(0, 0, 0);
 	vector3 firstOuterVertex = vector3(0, 0, 0);
-	vector3 tip = vector3(0, 0, a_fHeight); //might have to change height to be negative
+	vector3 tip = vector3(0, 0, -a_fHeight); 
 
 	for (int i = 0; i <= a_nSubdivisions; i++) {
 
@@ -450,13 +450,16 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 	// Replace this with your code
 	GenerateCube(a_fOuterRadius * 2.0f, a_v3Color);
 	// -------------------------------
-	/*
+	
 	float theta = (360 / a_nSubdivisions)* PI / 180;
 	vector3 lastVertex = vector3(0, 0, 0);
+	vector3 lastVertexIn = vector3(0, 0, 0);
 	vector3 firstOuterVertex = vector3(0, 0, 0);
-	vector3 firstOuterVertex1 = vector3(0, 0, 0);
+	vector3 firstOuterVertexIn = vector3(0, 0, 0);
 	vector3 lastVertexTop = vector3(0, 0, a_fHeight);
+	vector3 lastVertexTopIn = vector3(0, 0, a_fHeight);
 	vector3 firstOuterVertexTop = vector3(0, 0, a_fHeight);
+	vector3 firstOuterVertexTopIn = vector3(0, 0, a_fHeight);
 
 	for (int i = 0; i <= a_nSubdivisions; i++) {
 
@@ -464,47 +467,66 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 
 		float y = a_fOuterRadius * sin(theta * i);
 
-		float x1 = a_fInnerRadius * cos(theta * i);
+		float xIn = a_fInnerRadius * cos(theta * i);
 
-		float y1 = a_fInnerRadius * sin(theta * i);
+		float yIn = a_fInnerRadius * sin(theta * i);
 
 
 		
 		vector3 thisVertex = vector3(x, y, 0);
 		vector3 thisVertexTop = vector3(x, y, a_fHeight);
 
-
-		
-
-
-		vector3 thisVertex1 = vector3(x1, y1, 0);
-		vector3 thisVertexTop1 = vector3(x1, y1, a_fHeight);
+		vector3 thisVertexIn = vector3(xIn, yIn, 0);
+		vector3 thisVertexTopIn = vector3(xIn, yIn, a_fHeight);
 
 
 
 
 		if (i == 0) {
 			lastVertex = thisVertex;
-			firstOuterVertex = thisVertex;
+			lastVertexIn = thisVertexIn;
+			
 			lastVertexTop = thisVertexTop;
+			lastVertexTopIn = thisVertexTopIn;
+
+			
+			firstOuterVertex = thisVertex;
+			firstOuterVertexIn = thisVertexIn;
 			firstOuterVertexTop = thisVertexTop;
+			firstOuterVertexTopIn = thisVertexTopIn;
+			
 		}
 		else if (i == a_nSubdivisions) {
-			AddTri(lastVertex, vector3(0, 0, 0), firstOuterVertex);
-			AddTri(vector3(0, 0, a_fHeight), lastVertexTop, firstOuterVertexTop);
-			AddQuad(lastVertex, firstOuterVertex, lastVertexTop, firstOuterVertexTop);
+			AddQuad(lastVertex, firstOuterVertex, lastVertexIn, firstOuterVertexIn); //bottom quad
+			AddQuad(firstOuterVertexTop, lastVertexTop, firstOuterVertexTopIn, lastVertexTopIn ); //top quad
+			//AddQuad(lastVertex,firstOuterVertex,lastVertexTop,firstOuterVertexTop);//connecting quad outer
+			//AddQuad(firstOuterVertexIn, lastVertexIn, firstOuterVertexTopIn, lastVertexTopIn);//connecting quad inner
+
+
 		}
 		else
 		{
-			AddTri(lastVertex, vector3(0, 0, 0), thisVertex);
-			AddTri(vector3(0, 0, a_fHeight), lastVertexTop, thisVertexTop);
-			AddQuad(lastVertex, thisVertex, lastVertexTop, thisVertexTop);
+			
+
+
+			AddQuad(lastVertex, thisVertex, lastVertexIn, thisVertexIn); //bottom quad
+			AddQuad(thisVertexTop, lastVertexTop, thisVertexTopIn, lastVertexTopIn); //top quad
+			//AddQuad(lastVertex, thisVertex, lastVertexTop, thisVertexTop);//connecting quad outer
+			//AddQuad(thisVertexIn, lastVertexIn, thisVertexTopIn, lastVertexTopIn);//connecting quad inner
+
+
+
+
+
+
 			lastVertex = thisVertex;
+			lastVertexIn = thisVertexIn;
 			lastVertexTop = thisVertexTop;
+			lastVertexTopIn = thisVertexTopIn; 
 
 		}
 	}
-	*/
+	
 	// Adding information about color
 	CompleteMesh(a_v3Color);
 	CompileOpenGL3X();

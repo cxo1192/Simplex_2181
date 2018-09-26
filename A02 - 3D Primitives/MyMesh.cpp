@@ -448,7 +448,7 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fOuterRadius * 2.0f, a_v3Color);
+	//GenerateCube(a_fOuterRadius * 2.0f, a_v3Color);
 	// -------------------------------
 	
 	float theta = (360 / a_nSubdivisions)* PI / 180;
@@ -497,10 +497,10 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 			
 		}
 		else if (i == a_nSubdivisions) {
-			AddQuad(lastVertex, firstOuterVertex, lastVertexIn, firstOuterVertexIn); //bottom quad
-			AddQuad(firstOuterVertexTop, lastVertexTop, firstOuterVertexTopIn, lastVertexTopIn ); //top quad
-			//AddQuad(lastVertex,firstOuterVertex,lastVertexTop,firstOuterVertexTop);//connecting quad outer
-			//AddQuad(firstOuterVertexIn, lastVertexIn, firstOuterVertexTopIn, lastVertexTopIn);//connecting quad inner
+			AddQuad(firstOuterVertex, lastVertex, firstOuterVertexIn, lastVertexIn); //bottom quad
+			AddQuad(lastVertexTop, firstOuterVertexTop, lastVertexTopIn, firstOuterVertexTopIn ); //top quad
+			AddQuad(lastVertex,firstOuterVertex,lastVertexTop,firstOuterVertexTop);//connecting quad outer
+			AddQuad(firstOuterVertexIn, lastVertexIn, firstOuterVertexTopIn, lastVertexTopIn);//connecting quad inner
 
 
 		}
@@ -509,14 +509,10 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 			
 
 
-			AddQuad(lastVertex, thisVertex, lastVertexIn, thisVertexIn); //bottom quad
-			AddQuad(thisVertexTop, lastVertexTop, thisVertexTopIn, lastVertexTopIn); //top quad
-			//AddQuad(lastVertex, thisVertex, lastVertexTop, thisVertexTop);//connecting quad outer
-			//AddQuad(thisVertexIn, lastVertexIn, thisVertexTopIn, lastVertexTopIn);//connecting quad inner
-
-
-
-
+			AddQuad(thisVertex, lastVertex, thisVertexIn, lastVertexIn); //bottom quad
+			AddQuad(lastVertexTop, thisVertexTop, lastVertexTopIn, thisVertexTopIn); //top quad
+			AddQuad(lastVertex, thisVertex, lastVertexTop, thisVertexTop);//connecting quad outer
+			AddQuad(thisVertexIn, lastVertexIn, thisVertexTopIn, lastVertexTopIn);//connecting quad inner
 
 
 			lastVertex = thisVertex;

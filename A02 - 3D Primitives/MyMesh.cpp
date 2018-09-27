@@ -1,5 +1,5 @@
 #include "MyMesh.h"
-void MyMesh::GenerateCircle(float a_fRadius, int a_nSubdivisions, vector3 a_v3Color)
+void MyMesh::GenerateCircle(float a_fRadius, int a_nSubdivisions, vector3 a_v3Color) //function used as building block for other generate methods, from E04
 {
 	Release();
 	Init();
@@ -311,6 +311,8 @@ void MyMesh::GenerateCuboid(vector3 a_v3Dimensions, vector3 a_v3Color)
 	CompleteMesh(a_v3Color);
 	CompileOpenGL3X();
 }
+
+///Generates a cone based on a circle base conected with tris to a vertex that froms the tip
 void MyMesh::GenerateCone(float a_fRadius, float a_fHeight, int a_nSubdivisions, vector3 a_v3Color)
 {
 	if (a_fRadius < 0.01f)
@@ -327,45 +329,43 @@ void MyMesh::GenerateCone(float a_fRadius, float a_fHeight, int a_nSubdivisions,
 	Release();
 	Init();
 
-	// Replace this with your code
-	//GenerateCube(a_fRadius * 2.0f, a_v3Color);
-	// -------------------------------
 
-	float theta = (360 / a_nSubdivisions)* PI / 180;
-	vector3 lastVertex = vector3(0, 0, 0);
-	vector3 firstOuterVertex = vector3(0, 0, 0);
-	vector3 tip = vector3(0, 0, -a_fHeight); 
+	
+	float theta = (360 / a_nSubdivisions)* PI / 180; //generates angle of each subdivision
+	vector3 lastVertex = vector3(0, 0, 0); //the last vertex that was calculated before the current one
+	vector3 firstOuterVertex = vector3(0, 0, 0); //the first vertex calculate in the whole cone
+	vector3 tip = vector3(0, 0, -a_fHeight);  // the tip of the cone
 
 	for (int i = 0; i <= a_nSubdivisions; i++) {
 
-		float x = a_fRadius * cos(theta * i);
+		float x = a_fRadius * cos(theta * i); //rotate around the oragin by the angle of subdivison and generate a new vertex
 
 		float y = a_fRadius * sin(theta * i);
 
 		vector3 thisVertex = vector3(x, y, 0);
 
-		if (i == 0) {
+		if (i == 0) { //if it is the first vertex generated store the vertex without drawing a tri
 			lastVertex = thisVertex;
 			firstOuterVertex = thisVertex;
 		}
-		else if (i == a_nSubdivisions) {
+		else if (i == a_nSubdivisions) { //if it is the last subdivision generate a tri using the last coordinates and the first coordinates found around the circle
 			AddTri(vector3(0, 0, 0), lastVertex, firstOuterVertex);
-			AddTri(firstOuterVertex, lastVertex, tip);
+			AddTri(firstOuterVertex, lastVertex, tip); //conect the circle to the tip with a tri to make the cones protrusion 
 		}
 		else
 		{
-			AddTri(vector3(0, 0, 0), lastVertex, thisVertex);
-			AddTri(thisVertex, lastVertex, tip);
-			lastVertex = thisVertex;
+			AddTri(vector3(0, 0, 0), lastVertex, thisVertex); //generate the tri in the subdivision of the circle base
+			AddTri(thisVertex, lastVertex, tip); //conect the circle to the tip with a tri to make the cones protrusion 
+			lastVertex = thisVertex; //store the current vertex for the next loop through
 		}
-		//AddVertexPosition(vector3(x, y, 1));
 	}
 
 	// Adding information about color
 	CompleteMesh(a_v3Color);
 	CompileOpenGL3X();
 }
-void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisions, vector3 a_v3Color)
+///generates a cylinder by creating two circles and conecting them with quads
+void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisions, vector3 a_v3Color) 
 {
 	if (a_fRadius < 0.01f)
 		a_fRadius = 0.01f;
@@ -381,14 +381,12 @@ void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisi
 	Release();
 	Init();
 
-	// Replace this with your code
-	//GenerateCube(a_fRadius * 2.0f, a_v3Color);
-	// -------------------------------
-	float theta = (360 / a_nSubdivisions)* PI / 180;
-	vector3 lastVertex = vector3(0, 0, 0);
-	vector3 firstOuterVertex = vector3(0, 0, 0);
-	vector3 lastVertexTop = vector3(0, 0, a_fHeight);
-	vector3 firstOuterVertexTop = vector3(0, 0, a_fHeight);
+
+	float theta = (360 / a_nSubdivisions)* PI / 180; //generates angele of subdivision
+	vector3 lastVertex = vector3(0, 0, 0);  //stores the last vertex that was generated for the bottom circle
+	vector3 firstOuterVertex = vector3(0, 0, 0); //stores the very first vertex of the bottom circle
+	vector3 lastVertexTop = vector3(0, 0, a_fHeight); //the last vertex generated of the top circle
+	vector3 firstOuterVertexTop = vector3(0, 0, a_fHeight); //the very first virtex generated of the top circle
 
 	for (int i = 0; i <= a_nSubdivisions; i++) {
 
@@ -396,25 +394,26 @@ void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisi
 
 		float y = a_fRadius * sin(theta * i);
 
-		vector3 thisVertex = vector3(x, y, 0);
-		vector3 thisVertexTop = vector3(x, y, a_fHeight);
+		vector3 thisVertex = vector3(x, y, 0); //generate vertex on bottom circle
+		vector3 thisVertexTop = vector3(x, y, a_fHeight); //generate coorisponding vertex on top circle
 
-		if (i == 0) {
+		if (i == 0) { //if first vertexs of each circle store the vertexs for next loop through and store them as the very first vertexes found
 			lastVertex = thisVertex;
 			firstOuterVertex = thisVertex;
 			lastVertexTop = thisVertexTop;
 			firstOuterVertexTop = thisVertexTop;
 		}
-		else if (i == a_nSubdivisions) {
+		else if (i == a_nSubdivisions) { //if last subdivision connect the last vertexs to the very first vertexs found 
 			AddTri(lastVertex, vector3(0, 0, 0), firstOuterVertex);
-			AddTri(vector3(0, 0, a_fHeight), lastVertexTop, firstOuterVertexTop);
-			AddQuad(lastVertex, firstOuterVertex, lastVertexTop, firstOuterVertexTop);  
+			AddTri(vector3(0, 0, a_fHeight), lastVertexTop, firstOuterVertexTop); //same tri as prior one but fliped the other direction so that it is visible from the bottom
+			AddQuad(lastVertex, firstOuterVertex, lastVertexTop, firstOuterVertexTop);  //connects the two circles with quads
 		}
 		else
 		{
 			AddTri(lastVertex, vector3(0, 0, 0), thisVertex);
-			AddTri(vector3(0, 0, a_fHeight), lastVertexTop, thisVertexTop);
-			AddQuad(lastVertex, thisVertex, lastVertexTop, thisVertexTop);
+			AddTri(vector3(0, 0, a_fHeight), lastVertexTop, thisVertexTop);//same tri as prior one but fliped the other direction so that it is visible from the bottom
+			AddQuad(lastVertex, thisVertex, lastVertexTop, thisVertexTop);  //connects the two circles with quads
+			//store current vertexs for the next loop
 			lastVertex = thisVertex;
 			lastVertexTop = thisVertexTop;
 
@@ -425,7 +424,8 @@ void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisi
 	CompleteMesh(a_v3Color);
 	CompileOpenGL3X();
 }
-void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fHeight, int a_nSubdivisions, vector3 a_v3Color)
+///generate tube by creating two uncaped cylinders and connecting them at the rims
+void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fHeight, int a_nSubdivisions, vector3 a_v3Color) 
 {
 	if (a_fOuterRadius < 0.01f)
 		a_fOuterRadius = 0.01f;
@@ -447,19 +447,16 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 	Release();
 	Init();
 
-	// Replace this with your code
-	//GenerateCube(a_fOuterRadius * 2.0f, a_v3Color);
-	// -------------------------------
-	
-	float theta = (360 / a_nSubdivisions)* PI / 180;
-	vector3 lastVertex = vector3(0, 0, 0);
-	vector3 lastVertexIn = vector3(0, 0, 0);
-	vector3 firstOuterVertex = vector3(0, 0, 0);
-	vector3 firstOuterVertexIn = vector3(0, 0, 0);
-	vector3 lastVertexTop = vector3(0, 0, a_fHeight);
-	vector3 lastVertexTopIn = vector3(0, 0, a_fHeight);
-	vector3 firstOuterVertexTop = vector3(0, 0, a_fHeight);
-	vector3 firstOuterVertexTopIn = vector3(0, 0, a_fHeight);
+
+	float theta = (360 / a_nSubdivisions)* PI / 180; //angle of subdivision
+	vector3 lastVertex = vector3(0, 0, 0); //the last vertex generated on the outer bottom circle
+	vector3 lastVertexIn = vector3(0, 0, 0); //the last vertex generated on the inner bottom circle
+	vector3 firstOuterVertex = vector3(0, 0, 0); //the very first vertex generated on the outer bottom circle
+	vector3 firstOuterVertexIn = vector3(0, 0, 0); //the very first vertex generated on the inner bottom circle
+	vector3 lastVertexTop = vector3(0, 0, a_fHeight); //the last vertex generated on the outer top circle
+	vector3 lastVertexTopIn = vector3(0, 0, a_fHeight); //the last vertex generated on the inner top circle
+	vector3 firstOuterVertexTop = vector3(0, 0, a_fHeight); //the very first vertex generated on the outer top circle
+	vector3 firstOuterVertexTopIn = vector3(0, 0, a_fHeight); //the very first vertex generated on the inner top circle
 
 	for (int i = 0; i <= a_nSubdivisions; i++) {
 
@@ -472,16 +469,17 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 		float yIn = a_fInnerRadius * sin(theta * i);
 
 
-		
+		//gen current outer vertex bottom and top for the bottom and top circles
 		vector3 thisVertex = vector3(x, y, 0);
 		vector3 thisVertexTop = vector3(x, y, a_fHeight);
 
+		//gen current inner vertex bottom and top circles
 		vector3 thisVertexIn = vector3(xIn, yIn, 0);
 		vector3 thisVertexTopIn = vector3(xIn, yIn, a_fHeight);
 
 
 
-
+		//if first vertex generated for inner and outer edges of both top and bottom store them for later loops
 		if (i == 0) {
 			lastVertex = thisVertex;
 			lastVertexIn = thisVertexIn;
@@ -496,7 +494,7 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 			firstOuterVertexTopIn = thisVertexTopIn;
 			
 		}
-		else if (i == a_nSubdivisions) {
+		else if (i == a_nSubdivisions) { //if it is the last subdivision generate quads using the last vertecies and the very first set of vertices  
 			AddQuad(firstOuterVertex, lastVertex, firstOuterVertexIn, lastVertexIn); //bottom quad
 			AddQuad(lastVertexTop, firstOuterVertexTop, lastVertexTopIn, firstOuterVertexTopIn ); //top quad
 			AddQuad(lastVertex,firstOuterVertex,lastVertexTop,firstOuterVertexTop);//connecting quad outer
@@ -508,13 +506,16 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 		{
 			
 
-
+			//rims generated at the top and bottom of the tube connecting the inner and outer rings
 			AddQuad(thisVertex, lastVertex, thisVertexIn, lastVertexIn); //bottom quad
 			AddQuad(lastVertexTop, thisVertexTop, lastVertexTopIn, thisVertexTopIn); //top quad
+
+			//quads connecting the top and bottom rims facing opposite dirrections
 			AddQuad(lastVertex, thisVertex, lastVertexTop, thisVertexTop);//connecting quad outer
 			AddQuad(thisVertexIn, lastVertexIn, thisVertexTopIn, lastVertexTopIn);//connecting quad inner
 
 
+			//storeing the current vertecies for next loop
 			lastVertex = thisVertex;
 			lastVertexIn = thisVertexIn;
 			lastVertexTop = thisVertexTop;
@@ -559,6 +560,7 @@ void MyMesh::GenerateTorus(float a_fOuterRadius, float a_fInnerRadius, int a_nSu
 	CompleteMesh(a_v3Color);
 	CompileOpenGL3X();
 }
+///generate sphere by connecting concentric circles displaced vertically and capping the end with tris
 void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Color)
 {
 	if (a_fRadius < 0.01f)
@@ -576,9 +578,71 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 	Release();
 	Init();
 
-	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
-	// -------------------------------
+
+	float theta = (360 / a_nSubdivisions)* PI / 180; //angle of subdevision of three circles
+	vector3 lastVertex = vector3(0, 0, 0); //last vertex generated for this loop of center circle  
+	vector3 lastLowerVertex = vector3(0, 0, (-a_fRadius/2));  //last vertex generated of lower circle 
+	vector3 lastHigherVertex = vector3(0, 0, (a_fRadius / 2)); //last vertex generated of higher circle
+
+	//very first vertecies generated of each circle
+	vector3 firstOuterVertex = vector3(0, 0, 0); 
+	vector3 firstOuterLowerVertex = vector3(0, 0, 0);
+	vector3 firstOuterHigherVertex = vector3(0, 0, 0);
+
+	for (int i = 0; i <= a_nSubdivisions; i++) {
+
+		//position of verticies of center circle
+		float x = a_fRadius * cos(theta * i);
+		float y = a_fRadius * sin(theta * i);
+
+		//position of verticies of top and bottom circles
+		float x2 = ((2 * a_fRadius)/3) * cos(theta * i);
+		float y2 = ((2 * a_fRadius)/3) * sin(theta * i);
+
+		vector3 thisVertex = vector3(x, y, 0); 
+		vector3 thisLowerVertex = vector3(x2, y2, (-a_fRadius/2)); //verticies generated higher and lower than center circle
+		vector3 thisHigherVertex = vector3(x2, y2, (a_fRadius/2));
+
+
+
+		if (i == 0) { //if it is the first vertices generated store their location for later loops
+			lastVertex = thisVertex;
+			firstOuterVertex = thisVertex;
+
+			lastLowerVertex = thisLowerVertex;
+			firstOuterLowerVertex = thisLowerVertex;
+
+			lastHigherVertex = thisHigherVertex;
+			firstOuterHigherVertex = thisHigherVertex;
+
+		}
+		else if (i == a_nSubdivisions) { //if it is the last subdivision connect the last verticies to the very first vertices on each circle
+
+			AddQuad(lastVertex, firstOuterVertex, lastHigherVertex, firstOuterHigherVertex); //connect the upper and center circles' last and first vertices
+			AddQuad(lastLowerVertex, firstOuterLowerVertex, lastVertex, firstOuterVertex); //connect the lower and center circles' last and first vertices
+
+
+			//generates rounded ends above/below the upper and lower circles 
+			AddTri(lastLowerVertex, vector3(0, 0, (-a_fRadius )), firstOuterLowerVertex); //lower
+			AddTri(vector3(0, 0, (a_fRadius )), lastHigherVertex, firstOuterHigherVertex); // upper
+
+		}
+		else
+		{
+			//connects the three circles using the last and current verticies
+			AddQuad(lastVertex, thisVertex, lastHigherVertex, thisHigherVertex);
+			AddQuad(lastLowerVertex, thisLowerVertex, lastVertex, thisVertex);
+
+			//generates rounded end above and below upper and lower circle to complete the sphere
+			AddTri(lastLowerVertex, vector3(0, 0, (-a_fRadius)), thisLowerVertex);
+			AddTri(vector3(0, 0, (a_fRadius )), lastHigherVertex, thisHigherVertex);
+			
+			//store current vertices for next loop through to connect the next subdivision 
+			lastVertex = thisVertex;
+			lastLowerVertex = thisLowerVertex;
+			lastHigherVertex = thisHigherVertex;
+		}
+	}
 
 	// Adding information about color
 	CompleteMesh(a_v3Color);

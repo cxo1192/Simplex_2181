@@ -16,6 +16,7 @@ class Application
 {
 	MyMesh* m_pMesh = nullptr;
 	MyMesh* m_pMesh1 = nullptr;
+	vector3 m_v3Angles = vector3(0.0f);
 
 	String m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu";
 private:

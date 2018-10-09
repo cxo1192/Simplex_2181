@@ -417,27 +417,34 @@ void Application::ProcessKeyboard(void)
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::X))
 	{
 		if (fMultiplier)
-			m_v3Rotation.x -= 1.0f;
+			//m_v3Rotation.x -= 1.0f;
+			m_qOrientation = m_qOrientation * glm::angleAxis(glm::radians(-1.0f), AXIS_X);   //rotate the quaterneon instead of a vector to prevent gimble lock
 		else
-			m_v3Rotation.x += 1.0f;
+			//m_v3Rotation.x += 1.0f;
+			m_qOrientation = m_qOrientation * glm::angleAxis(glm::radians(1.0f), AXIS_X);
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Y))
 	{
 		if (fMultiplier)
-			m_v3Rotation.y -= 1.0f;
+			//m_v3Rotation.y -= 1.0f;
+			m_qOrientation = m_qOrientation * glm::angleAxis(glm::radians(-1.0f), AXIS_Y);
 		else
-			m_v3Rotation.y += 1.0f;
+			//m_v3Rotation.y += 1.0f;
+			m_qOrientation = m_qOrientation * glm::angleAxis(glm::radians(1.0f), AXIS_Y);
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
 	{
 		if (fMultiplier)
-			m_v3Rotation.z -= 1.0f;
+			//m_v3Rotation.z -= 1.0f;
+			m_qOrientation = m_qOrientation * glm::angleAxis(glm::radians(-1.0f), AXIS_Z);
 		else
-			m_v3Rotation.z += 1.0f;
+			//m_v3Rotation.z += 1.0f;
+			m_qOrientation = m_qOrientation * glm::angleAxis(glm::radians(1.0f), AXIS_Z);
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
 	{
-		m_v3Rotation = vector3(0.0f);
+		//m_v3Rotation = vector3(0.0f);
+		m_qOrientation = quaternion();  //reset quaterneon
 	}
 }
 //Joystick

@@ -42,11 +42,12 @@ void Application::Display(void)
 	static float fEnd = 180.0f;
 
 	float fCurrent = glm::lerp(fStart, fEnd, fPercent);
+	/*
 	vector3 v3Position = glm::lerp(v3InitialPoint, v3EndPoint, fPercent);
-
+	
 	matrix4 m4Rotation = glm::rotate(IDENTITY_M4, glm::radians(fCurrent), AXIS_Z);
 	matrix4 m4Position = glm::translate(m4Rotation, v3EndPoint);
-
+	
 	m4Position = glm::translate(vector3(0.0f)); ///point cone strait up
 
 	//new matrix transformation
@@ -56,6 +57,7 @@ void Application::Display(void)
 
 	matrix4 m4Transform = m4RotX * m4RotZ;
 	glm::quat q1;
+	*/
 	quaternion q2 = glm::angleAxis(glm::radians(1.0f),AXIS_Z);//angleAxis not axisAngle
 	static quaternion q3;
 	q3 = q3 * q2;

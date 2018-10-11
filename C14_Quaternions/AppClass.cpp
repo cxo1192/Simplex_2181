@@ -10,6 +10,7 @@ void Application::InitVariables(void)
 
 	//Load a model
 	m_pModel->Load("Minecraft\\Steve.obj");
+	m_fovy = 45.0f;
 }
 void Application::Update(void)
 {
@@ -68,6 +69,30 @@ void Application::Display(void)
 	
 	// draw a skybox
 	m_pMeshMngr->AddSkyboxToRenderList();
+
+	///////////////////////added camera stuff in claass/////////
+
+	matrix4 m4Projection = m_pCameraMngr->GetProjectionMatrix(); ///get matrix
+	matrix4 m4View = m_pCameraMngr->GetViewMatrix();
+
+
+	//do some calculations to camera matrix blah blah blah
+	//float fovy = m_fovy; //feild of view
+	float fovy = 45.0f;
+	float aspect = 1.0f; //aspect ratio
+	//aspect = 1080.0f / 720.0f; //fix aspect ratio 
+	aspect = m_pSystem->GetWindowWidth() / m_pSystem->GetWindowHeight(); //fix aspect ratio without hardcoding andshould adjust if you change window size 
+
+	float zNear = 0.0001f; //near clipping plane
+	float zFar = 1000.0f; //far clipping plane
+
+	m4Projection = glm::perspective(fovy, aspect, zNear, zFar);
+
+
+	m_pCameraMngr->SetProjectionMatrix(m4Projection); ///send back a matrix yoou have calculated
+	m_pCameraMngr->SetViewMatrix(m4View);
+
+	///////////////////////////////////////////////////////////
 
 	//render list call
 	m_uRenderCallCount = m_pMeshMngr->Render();

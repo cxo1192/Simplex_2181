@@ -418,6 +418,10 @@ void Application::ProcessKeyboard(void)
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::E))
 		m_pCameraMngr->MoveVertical(fSpeed);
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::O))
+		m_fovy += 0.1f;
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::P))
+		m_fovy -= 0.1f;
 #pragma endregion
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::X))

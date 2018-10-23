@@ -22,6 +22,11 @@ class Application
 	uint m_uProjection = 1; //The projection used for each mesh
 	MyCamera* m_pCamera = nullptr; //camera we will use in this application
 	String m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu"; //Programmer ID
+
+
+	float zNear; //near clipping plane
+	float zFar; //far clipping plane
+	vector2 nF; //stores near and far 
 private:
 	static ImGuiObject gui; //GUI object
 

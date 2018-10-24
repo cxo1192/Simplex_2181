@@ -67,6 +67,14 @@ void Application::ProcessMouseScroll(sf::Event a_event)
 //Keyboard
 void Application::ProcessKeyPressed(sf::Event a_event)
 {
+	vector3 pos = m_pCamera->GetPosition();
+	float x = pos.x;
+	float z = pos.z;
+
+	vector3 posT = m_pCamera->GetTarget();
+	float xT = posT.x;
+	float zT = posT.z;
+
 	switch (a_event.key.code)
 	{
 	default: break;
@@ -390,6 +398,40 @@ void Application::ProcessKeyboard(void)
 		m_pCamera->MoveForward(fSpeed);
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
 		m_pCamera->MoveForward(-fSpeed);
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+		m_pCamera->MoveSideways(-fSpeed);
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+		m_pCamera->MoveSideways(fSpeed);
+
+
+
+	/*
+	case sf::Keyboard::W:
+		z += 0.1f;
+		m_pCamera->SetPosition(vector3(pos.x, pos.y, z));
+		zT += 0.1f;
+		m_pCamera->SetTarget(vector3(posT.x, posT.y, zT));
+		break;
+	case sf::Keyboard::A:
+		 x -= 0.1f;
+		m_pCamera->SetPosition(vector3(x, pos.y, pos.z));
+		xT -= 0.1f;
+		m_pCamera->SetTarget(vector3(xT, posT.y, posT.z));
+		break;
+	case sf::Keyboard::S:
+		z -= 0.1f;
+		m_pCamera->SetPosition(vector3(pos.x, pos.y, z));
+		zT -= 0.1f;
+		m_pCamera->SetTarget(vector3(posT.x, posT.y, zT));
+		break;
+	case sf::Keyboard::D:
+		x += 0.1f;
+		m_pCamera->SetPosition(vector3(x, pos.y, pos.z));
+		xT += 0.1f;
+		m_pCamera->SetTarget(vector3(xT, posT.y, posT.z));
+		break;
+	*/
 #pragma endregion
 }
 //Joystick

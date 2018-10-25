@@ -27,6 +27,8 @@ void Application::ProcessMousePressed(sf::Event a_event)
 	case sf::Mouse::Button::Right:
 		gui.m_bMousePressed[2] = true;
 		m_bFPC = true;
+		m_bArcBall = true; //activates arcBall when right click is done in order to rotate view 
+		//mousePressed = true;
 		break;
 	}
 
@@ -48,6 +50,7 @@ void Application::ProcessMouseReleased(sf::Event a_event)
 	case sf::Mouse::Button::Right:
 		gui.m_bMousePressed[2] = false;
 		m_bFPC = false;
+		m_bArcBall = false;
 		break;
 	}
 
@@ -355,30 +358,105 @@ void Application::CameraRotation(float a_fSpeed)
 	float fAngleX = 0.0f;
 	float fAngleY = 0.0f;
 	float fDeltaMouse = 0.0f;
+	float fDeltaMouseX = 0.0f;
+	float fDeltaMouseY = 0.0f;
 	if (MouseX < CenterX)
 	{
 		fDeltaMouse = static_cast<float>(CenterX - MouseX);
+		fDeltaMouseX = static_cast<float>(MouseX - CenterX); //want to be negative
 		fAngleY += fDeltaMouse * a_fSpeed;
 	}
 	else if (MouseX > CenterX)
 	{
 		fDeltaMouse = static_cast<float>(MouseX - CenterX);
+		fDeltaMouseX = static_cast<float>(MouseX - CenterX);
 		fAngleY -= fDeltaMouse * a_fSpeed;
 	}
 
 	if (MouseY < CenterY)
 	{
 		fDeltaMouse = static_cast<float>(CenterY - MouseY);
+		fDeltaMouseY = static_cast<float>(MouseY - CenterY);//want negative
 		fAngleX -= fDeltaMouse * a_fSpeed;
 	}
 	else if (MouseY > CenterY)
 	{
 		fDeltaMouse = static_cast<float>(MouseY - CenterY);
+		fDeltaMouseY = static_cast<float>(MouseY - CenterY);
 		fAngleX += fDeltaMouse * a_fSpeed;
 	}
 	//Change the Yaw and the Pitch of the camera
+	
+
+	//gets a new target my getting the current target turning it into a mat4 to multiply it by the arcball controlled by the mouse 
+	vector3 posT = m_pCamera->GetTarget();
+	//vector3 newT = vector3(posT.x + fDeltaMouseX, posT.y + fDeltaMouseY, posT.z);//////////////////////
+	vector4 posT4 = vector4(posT, 0);
+	m_qArcBall = glm::inverse(m_qArcBall); //inverts the arcball to make the rotations correct for the perspective
+	vector4 newT4 = ToMatrix4(m_qArcBall) * posT4  * 0.99f; //apply arcball to target and weaken the strength slightly 
+	vector3 newT = vector3(newT4.x, newT4.y, newT4.z); //convert back to vector 3
+	
+
+
+	vector3 up2 = m_pCamera->GetAbove(); //repeat process with the up vector if rotating with mouse 
+	vector4 up4 = vector4(up2, 0);
+	vector4 newUp4 = ToMatrix4(m_qArcBall) * up4;
+	vector3 newUp = vector3(newUp4.x, newUp4.y, newUp4.z);
+
+
+
+	//repeat process with the right vector if rotating with mouse
+	vector3 oldRight = m_pCamera->GetRight();
+	vector4 oldRight4 = vector4(oldRight, 0);
+	vector4 newRight4 = ToMatrix4(m_qArcBall) * oldRight4;
+	vector3 newRight = vector3(newRight4.x, newRight4.y, newRight4.z);
+	////////////////////////////////////////////////////////////////////////////////
+	//matrix4 ychange = m_pCamera->GetViewMatrix();
+	//ychange = glm::rotate(ychange, (fAngleY), m_pCamera->GetRight());
+	//vector4 newUP4 = up4 * ychange;
+	//vector3 newUp = vector3(newUP4.x, newUP4.y, newUP4.z);
+
+	//vector4 newT4 = posT4 * ychange;
+	//vector3 newT = vector3(newT4.x, newT4.y, newT4.z);
+	
+	//m_pCamera->SetAbove(newUp);
+	/////////////////////////////////////////////////////////////////////////////////
+	m_pCamera->SetTarget(newT); //set the new target with the arcball applied 
+	
+	vector3 direction( //calculate new direction forward unit vector
+		cos(fAngleY) * sin(fAngleX),
+		sin(fAngleY),
+		cos(fAngleY) * cos(fAngleX)
+	);
+
+	m_pCamera->SetForward(direction);
+
+
+	vector3 right = vector3( //calculate right unit vector
+		sin(fAngleX - 3.14f / 2.0f),
+		0,
+		cos(fAngleX - 3.14f / 2.0f)
+	);
+
+	m_pCamera->SetRight(right);
+
+	vector3 up = glm::cross(right, direction);//calculate up unit vector
+
+	
+	m_pCamera->SetUp(up);
+	
+
+	m_pCamera->SetTarget(m_pCamera->GetPosition() + direction); //set target as position, plus the direction vector, keeping it just in front of camera
+
+
+	//apply arc ball rotations 
+	m_pCamera->SetAbove(newUp); //apply arc ball rotations 
+	m_pCamera->SetTarget(newT + direction);
+	m_pCamera->SetRight(newRight);
 	SetCursorPos(CenterX, CenterY);//Position the mouse in the center
+
 }
+
 //Keyboard
 void Application::ProcessKeyboard(void)
 {

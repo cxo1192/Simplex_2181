@@ -15,7 +15,15 @@ void Simplex::MyCamera::SetNearFar(vector2 a_v2NearFar) { m_v2NearFar = a_v2Near
 void Simplex::MyCamera::SetHorizontalPlanes(vector2 a_v2Horizontal) { m_v2Horizontal = a_v2Horizontal; }
 void Simplex::MyCamera::SetVerticalPlanes(vector2 a_v2Vertical) { m_v2Vertical = a_v2Vertical; }
 matrix4 Simplex::MyCamera::GetProjectionMatrix(void) { return m_m4Projection; }
-matrix4 Simplex::MyCamera::GetViewMatrix(void) { CalculateViewMatrix(); return m_m4View; }
+//void SetProjectionMatrix(matrix4 mat) {m_m4Projection = mat; }
+//void SetViewMatrix(matrix4 mat) { m_m4View = mat; }
+matrix4 Simplex::MyCamera::GetViewMatrix(void) { CalculateViewMatrix(); return m_m4View; } /////getters and setters for direction vectors and the get view matrix for convience
+vector3 Simplex::MyCamera::GetForward(void) { return forward; } //
+vector3 Simplex::MyCamera::GetRight(void) { return right; }
+vector3 Simplex::MyCamera::GetUp(void) { return up; }
+void Simplex::MyCamera::SetForward(vector3 direction) { forward = direction; }
+void Simplex::MyCamera::SetRight(vector3 direction) {  right = direction; }
+void Simplex::MyCamera::SetUp(vector3 direction) { up = direction; }
 
 Simplex::MyCamera::MyCamera()
 {
@@ -65,6 +73,8 @@ void Simplex::MyCamera::Init(void)
 	ResetCamera();
 	CalculateProjectionMatrix();
 	CalculateViewMatrix();
+	forward = glm::normalize(m_v3Target - m_v3Position);
+	right = vector3(forward.z, forward.y, -forward.x);
 	//No pointers to initialize here
 }
 
@@ -150,20 +160,27 @@ void Simplex::MyCamera::CalculateProjectionMatrix(void)
 	}
 }
 
-void MyCamera::MoveForward(float a_fDistance)
+void MyCamera::MoveForward(float a_fDistance) //move forward by adding to the position by the forward direction vector times a speed scalar
 {
-	//The following is just an example and does not take in account the forward vector (AKA view vector)
-	m_v3Position += vector3(0.0f, 0.0f,-a_fDistance);
-	m_v3Target += vector3(0.0f, 0.0f, -a_fDistance);
-	m_v3Above += vector3(0.0f, 0.0f, -a_fDistance);
+
+	m_v3Position += forward * a_fDistance;
+	//right += forward * a_fDistance;
+	//right = glm::normalize(right - m_v3Position);
+	m_v3Target += forward * a_fDistance; //also moves the target and the up so the cameras orientation doesnt change
+	m_v3Above += forward * a_fDistance;
+
 }
 
 void MyCamera::MoveVertical(float a_fDistance){}//Needs to be defined
 
-void MyCamera::MoveSideways(float a_fDistance){
+void MyCamera::MoveSideways(float a_fDistance){ //move right by adding to the position by the right direction vector times a speed scalar
 
-	m_v3Position += vector3(-a_fDistance, 0.0f, 0.0f);
-	m_v3Target += vector3(-a_fDistance, 0.0f, 0.0f);
-	m_v3Above += vector3(-a_fDistance, 0.0f, 0.0f);
+
+	m_v3Position += right * a_fDistance;
+	//right += right * a_fDistance;
+	//right = glm::normalize(right - m_v3Position);
+	m_v3Target += right * a_fDistance;//also moves the target and the up so the cameras orientation doesnt change
+	m_v3Above += right * a_fDistance;
+
 
 }//Needs to be defined

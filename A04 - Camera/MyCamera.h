@@ -15,6 +15,9 @@ class MyCamera
 	vector3 m_v3Position = vector3(0.0f, 0.0f, 10.0f); //Where my camera is located
 	vector3 m_v3Target = vector3(0.0f, 0.0f, 0.0f); //What I'm looking at
 	vector3 m_v3Above = vector3(0.0f, 1.0f, 0.0f); //What is above the camera
+	vector3 right = vector3(0.0f); //right direction unit vector used for movement and calculating rotations
+	vector3 forward = vector3(0.0f); //forward direction unit vector used for movement and calculating rotations
+	vector3 up = vector3(0.0f); //up direction unit vector used for calculating rotations
 
 	bool m_bPerspective = true; //perspective view? False is Orthographic
 
@@ -29,6 +32,7 @@ class MyCamera
 	matrix4 m_m4View; //View matrix
 	matrix4 m_m4Projection; //Projection Matrix
 public:
+	
 	/*
 	USAGE: Constructor
 	ARGUMENTS: ---
@@ -179,7 +183,15 @@ public:
 	ARGUMENTS: ---
 	OUTPUT: view matrix of the camera
 	*/
-	matrix4 GetViewMatrix(void);
+	matrix4 GetViewMatrix(void);  //geters for direction vectors and view matrix
+	vector3 GetForward(void);
+	vector3 GetRight(void);
+	vector3 GetUp(void);
+
+
+	void SetForward(vector3 direction); //setters for direcction vectors
+	void SetRight(vector3 direction);
+	void SetUp(vector3 direction);
 
 	/*
 	USAGE: Resets the camera to default values

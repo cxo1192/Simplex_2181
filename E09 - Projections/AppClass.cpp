@@ -30,6 +30,8 @@ void Application::InitVariables(void)
 	zNear = 0.0001f; //near clipping plane
 	zFar = 1000.0f; //far clipping plane
 	 
+
+	mousePressed = false;
 }
 void Application::Update(void)
 {

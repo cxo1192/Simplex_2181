@@ -387,7 +387,7 @@ void Application::CameraRotation(float a_fSpeed)
 	}
 	//Change the Yaw and the Pitch of the camera
 	
-
+	//uses arcball to apply rotations as it is a quaternieon and prevents gimbal lock
 	//gets a new target my getting the current target turning it into a mat4 to multiply it by the arcball controlled by the mouse 
 	vector3 posT = m_pCamera->GetTarget();
 	//vector3 newT = vector3(posT.x + fDeltaMouseX, posT.y + fDeltaMouseY, posT.z);//////////////////////

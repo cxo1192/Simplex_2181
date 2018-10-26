@@ -169,6 +169,11 @@ void MyCamera::MoveForward(float a_fDistance) //move forward by adding to the po
 	m_v3Target += forward * a_fDistance; //also moves the target and the up so the cameras orientation doesnt change
 	m_v3Above += forward * a_fDistance;
 
+	/*
+	forward = glm::normalize(m_v3Target - m_v3Position);
+	up = glm::normalize(m_v3Above - m_v3Position);
+	right = glm::normalize(glm::cross(right, forward));*/
+
 }
 
 void MyCamera::MoveVertical(float a_fDistance){}//Needs to be defined
@@ -182,5 +187,10 @@ void MyCamera::MoveSideways(float a_fDistance){ //move right by adding to the po
 	m_v3Target += right * a_fDistance;//also moves the target and the up so the cameras orientation doesnt change
 	m_v3Above += right * a_fDistance;
 
+
+	/*
+	forward = glm::normalize(m_v3Target - m_v3Position);
+	up = glm::normalize(m_v3Above - m_v3Position);
+	right = glm::normalize(glm::cross(right, forward));*/
 
 }//Needs to be defined

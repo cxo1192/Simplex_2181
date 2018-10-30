@@ -63,6 +63,53 @@ void MyRigidBody::Release(void)
 MyRigidBody::MyRigidBody(std::vector<vector3> a_pointList)
 {
 	Init();
+
+	uint points = a_pointList.size();
+
+	if (points == 0)
+		return;
+
+	m_v3MinL = a_pointList[0];
+	m_v3MaxL = a_pointList[0];
+
+	for (size_t i = 0; i < points; i++)
+	{
+
+		if (m_v3MinL.x > a_pointList[i].x)
+			m_v3MinL.x = a_pointList[i].x;
+		else if (m_v3MaxL.x < a_pointList[i].x)
+			m_v3MaxL.x = a_pointList[i].x;
+
+		if (m_v3MinL.y > a_pointList[i].y)
+			m_v3MinL.y = a_pointList[i].y;
+		else if (m_v3MaxL.y < a_pointList[i].y)
+			m_v3MaxL.y = a_pointList[i].y;
+
+		if (m_v3MinL.z > a_pointList[i].z)
+			m_v3MinL.z = a_pointList[i].z;
+		else if (m_v3MaxL.z < a_pointList[i].z)
+			m_v3MaxL.z = a_pointList[i].z;
+
+	}
+
+	m_v3Center = (m_v3MaxL + m_v3MinL) / 2.0f; ///centroid
+	
+	/*
+	for (uint i = 0; i < points; i++) { //find largest radius from center point
+		float fDistance = glm::distance(m_v3Center, a_pointList[i]);
+		if (m_fRadius < fDistance)
+			m_fRadius = fDistance;
+	}
+	*/
+
+
+	m_fRadius = glm::distance(m_v3Center, m_v3MaxL);
+
+	//vector3 v3Size;
+	/////////////////////////////v3Size.x = glm::distance(vector3(m_v3MaxL.x, 0, 0), vector3(m_v3MinL.x, 0, 0));
+	//v3Size = m_v3MaxL - m_v3MinL;
+	m_v3HalfWidth = (m_v3MaxL - m_v3MinL) / 2.0f;
+
 }
 MyRigidBody::MyRigidBody(MyRigidBody const& other)
 {
@@ -102,8 +149,37 @@ void MyRigidBody::AddToRenderList(void)
 {
 	if (!m_bVisible)
 		return;
+
+	//m_pMeshMngr->AddSphereToRenderList(m_m4ToWorld * glm::translate(m_v3Center) * glm::scale(vector3(5.0f)), C_RED, RENDER_SOLID);
+	m_pMeshMngr->AddWireSphereToRenderList(m_m4ToWorld * 
+										glm::translate(m_v3Center) * 
+										glm::scale(vector3(m_fRadius)), 
+										m_v3Color, RENDER_SOLID);
+
+	/*
+	m_pMeshMngr->AddWireCubeToRenderList(m_m4ToWorld *
+											glm::translate(m_v3Center) *
+											glm::scale(m_v3HalfWidth * 2.0f),
+											C_YELLOW, RENDER_WIRE);
+
+
+											*/
+
+
+	m_pMeshMngr->AddWireCubeToRenderList(m_m4ToWorld *
+											glm::translate(m_v3Center) *
+											glm::scale(m_v3HalfWidth * 2.0f),
+											m_v3Color, RENDER_WIRE);
 }
 bool MyRigidBody::IsColliding(MyRigidBody* const other)
 {
-	return false;
+	/*
+	bool bColliding = false;
+	if (glm::distance(m_v3Center, other->m_v3Center) < m_fRadius + other->m_fRadius)
+		bColliding = true;
+
+	return bColliding;
+	*/
+
+	return (glm::distance(m_v3Center, other->m_v3Center) < m_fRadius + other->m_fRadius);
 }

@@ -276,6 +276,8 @@ void MyRigidBody::AddToRenderList(void)
 
 uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 {
+	//std::vector<vector3> foo;
+	//foo.push_back(this->m_m4ToWorld*vector4(1, 0, 0, 0));
 	/*
 	Your code goes here instead of this comment;
 
@@ -286,7 +288,7 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 	Simplex that might help you [eSATResults] feel free to use it.
 	(eSATResults::SAT_NONE has a value of 0)
 	*/
-	
+	/*
 	vector3 v3Corner[8];
 	//Back square
 	v3Corner[0] = m_v3MinL;
@@ -321,8 +323,131 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 	v3OtherCorner[6] = vector3(oMin.x, oMax.y, oMax.z);
 	v3OtherCorner[7] = oMax;
 	
+	*/
+	struct OBB {
+		vector3 c; //center
+		vector3 u[3]; //local x- y- z- axis
+		vector3 e; //halfwidth
+	};
+
+	OBB a;
+	a.c = GetCenterGlobal();
+	//a.u[0] = vector3(1.0f, 0, 0);
+	a.u[0] = glm::normalize(vector3(m_v3MaxG.x, m_v3MinG.y, m_v3MaxG.z) - vector3(m_v3MinG.x, m_v3MinG.y, m_v3MaxG.z));
+	//a.u[1] = vector3(0, 1.0f, 0);
+	a.u[1] = glm::normalize(m_v3MaxG - vector3(m_v3MaxG.x, m_v3MinG.y, m_v3MaxG.z));
+	//a.u[2] = vector3(0, 0, 1.0f);
+	a.u[2] = glm::normalize(m_v3MaxG - vector3(m_v3MaxG.x, m_v3MaxG.y, m_v3MinG.z));
+	a.e = m_v3HalfWidth;
+
+	//v3Corner[5] = vector3(m_v3MaxL.x, m_v3MinL.y, m_v3MaxL.z);
+	//v3Corner[7] = m_v3MaxL;
+
+	
+
+
+	//vector3 normXL = glm::normalize(vector3((m_v3MaxL.y - m_v3MinL.y), -1.0f * (m_v3MaxL.x - m_v3MinL.x), m_v3MaxL.z));
+	//vector3 normYL = glm::normalize(vector3(-1.0f * (m_v3MaxL.y - m_v3MinL.y), (m_v3MaxL.x - m_v3MinL.x), m_v3MaxL.z));
+	//vector3 normXL = glm::normalize(vector3(-1.0f * (m_v3MaxL.y - m_v3MinL.y), (m_v3MaxL.x - m_v3MinL.x), m_v3MaxL.z));
+	//normXL = glm::normalize(normXL);
+
+	OBB b;
+	b.c = a_pOther->GetCenterGlobal();
+	//a.u[0] = vector3(1.0f, 0, 0);
+	b.u[0] = glm::normalize(vector3(a_pOther->m_v3MaxG.x, a_pOther->m_v3MinG.y, a_pOther->m_v3MaxG.z) - vector3(a_pOther->m_v3MinG.x, a_pOther->m_v3MinG.y, a_pOther->m_v3MaxG.z));
+	//a.u[1] = vector3(0, 1.0f, 0);
+	b.u[1] = glm::normalize(a_pOther->m_v3MaxG - vector3(a_pOther->m_v3MaxG.x, a_pOther->m_v3MinG.y, a_pOther->m_v3MaxG.z));
+	//a.u[2] = vector3(0, 0, 1.0f);
+	b.u[2] = glm::normalize(a_pOther->m_v3MaxG - vector3(a_pOther->m_v3MaxG.x, a_pOther->m_v3MaxG.y, a_pOther->m_v3MinG.z));
+	b.e = a_pOther->GetHalfWidth(); //might have to change e[0] to e.x etc
+
+	float ra;
+	float rb;
+	matrix3 R;
+	matrix3 AbsR;
+
+	// Compute rotation matrix expressing b in a's coordinate frame
+	for (int i = 0; i < 3; i++)
+		for (int j = 0; j < 3; j++)
+			R[i][j] = glm::dot(a.u[i], b.u[j]);//R[i][j] = Dot(a.u[i], b.u[j]);
+	
+
+	// Compute translation vector t
+	vector3 t = b.c - a.c;
+	// Bring translation into a's coordinate frame
+	t = vector3(glm::dot(t, a.u[0]), glm::dot(t, a.u[2]), glm::dot(t, a.u[2]));
+	
+
+	// Compute common subexpressions. Add in an epsilon term to
+	// counteract arithmetic errors when two edges are parallel and
+	// their cross product is (near) null (see text for details)
+	for (int i = 0; i < 3; i++)
+		for (int j = 0; j < 3; j++)
+			AbsR[i][j] = glm::abs(R[i][j]) + DBL_EPSILON;//AbsR[i][j] = glm::abs(R[i][j]) + EPSILON;
+	
+
+	// Test axes L = A0, L = A1, L = A2
+	for (int i = 0; i < 3; i++) {
+		ra = a.e[i];
+		rb = b.e[0] * AbsR[i][0] + b.e[1] * AbsR[i][1] + b.e[2] * AbsR[i][2];
+		if (glm::abs(t[i]) > ra + rb) return 1;
+	}
+
+	// Test axes L = B0, L = B1, L = B2
+	for (int i = 0; i < 3; i++) {
+		ra = a.e[0] * AbsR[0][i] + a.e[1] * AbsR[1][i] + a.e[2] * AbsR[2][i];
+		rb = b.e[i];
+		if (glm::abs(t[0] * R[0][i] + t[1] * R[1][i] + t[2] * R[2][i]) > ra + rb) return 1;
+	}
+
+	// Test axis L = A0 x B0
+	ra = a.e[1] * AbsR[2][0] + a.e[2] * AbsR[1][0];
+	rb = b.e[1] * AbsR[0][2] + b.e[2] * AbsR[0][1];
+	if (glm::abs(t[2] * R[1][0] - t[1] * R[2][0]) > ra + rb) return 1;
+
+	// Test axis L = A0 x B1
+	ra = a.e[1] * AbsR[2][1] + a.e[2] * AbsR[1][1];
+	rb = b.e[0] * AbsR[0][2] + b.e[2] * AbsR[0][0];
+	if (glm::abs(t[2] * R[1][1] - t[1] * R[2][1]) > ra + rb) return 1;
+
+	// Test axis L = A0 x B2
+	ra = a.e[1] * AbsR[2][2] + a.e[2] * AbsR[1][2];
+	rb = b.e[0] * AbsR[0][1] + b.e[1] * AbsR[0][0];
+	if (glm::abs(t[2] * R[1][2] - t[1] * R[2][2]) > ra + rb) return 1;
+
+	// Test axis L = A1 x B0
+	ra = a.e[0] * AbsR[2][0] + a.e[2] * AbsR[0][0];
+	rb = b.e[1] * AbsR[1][2] + b.e[2] * AbsR[1][1];
+
+	if (glm::abs(t[0] * R[2][0] - t[2] * R[0][0]) > ra + rb) return 1;
+
+	// Test axis L = A1 x B1
+	ra = a.e[0] * AbsR[2][1] + a.e[2] * AbsR[0][1];
+	rb = b.e[0] * AbsR[1][2] + b.e[2] * AbsR[1][0];
+	if (glm::abs(t[0] * R[2][1] - t[2] * R[0][1]) > ra + rb) return 1;
+
+	// Test axis L = A1 x B2
+	ra = a.e[0] * AbsR[2][2] + a.e[2] * AbsR[0][2];
+	rb = b.e[0] * AbsR[1][1] + b.e[1] * AbsR[1][0];
+	if (glm::abs(t[0] * R[2][2] - t[2] * R[0][2]) > ra + rb) return 1;
+
+	// Test axis L = A2 x B0
+	ra = a.e[0] * AbsR[1][0] + a.e[1] * AbsR[0][0];
+	rb = b.e[1] * AbsR[2][2] + b.e[2] * AbsR[2][1];
+	if (glm::abs(t[1] * R[0][0] - t[0] * R[1][0]) > ra + rb) return 1;
+
+	// Test axis L = A2 x B1
+	ra = a.e[0] * AbsR[1][1] + a.e[1] * AbsR[0][1];
+	rb = b.e[0] * AbsR[2][2] + b.e[2] * AbsR[2][0];
+	if (glm::abs(t[1] * R[0][1] - t[0] * R[1][1]) > ra + rb) return 1;
+
+	// Test axis L = A2 x B2
+	ra = a.e[0] * AbsR[1][2] + a.e[1] * AbsR[0][2];
+	rb = b.e[0] * AbsR[2][1] + b.e[1] * AbsR[2][0];
+	if (glm::abs(t[1] * R[0][2] - t[0] * R[1][2]) > ra + rb) return 1;
 
 
 	//there is no axis test that separates this two objects
-	return eSATResults::SAT_NONE;
+	//return eSATResults::SAT_NONE;
+	return 0;
 }

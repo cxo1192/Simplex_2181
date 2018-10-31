@@ -286,6 +286,42 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 	Simplex that might help you [eSATResults] feel free to use it.
 	(eSATResults::SAT_NONE has a value of 0)
 	*/
+	
+	vector3 v3Corner[8];
+	//Back square
+	v3Corner[0] = m_v3MinL;
+	v3Corner[1] = vector3(m_v3MaxL.x, m_v3MinL.y, m_v3MinL.z);
+	v3Corner[2] = vector3(m_v3MinL.x, m_v3MaxL.y, m_v3MinL.z);
+	v3Corner[3] = vector3(m_v3MaxL.x, m_v3MaxL.y, m_v3MinL.z);
+
+	//Front square
+	v3Corner[4] = vector3(m_v3MinL.x, m_v3MinL.y, m_v3MaxL.z);
+	v3Corner[5] = vector3(m_v3MaxL.x, m_v3MinL.y, m_v3MaxL.z);
+	v3Corner[6] = vector3(m_v3MinL.x, m_v3MaxL.y, m_v3MaxL.z);
+	v3Corner[7] = m_v3MaxL;
+
+	for (uint uIndex = 0; uIndex < 8; ++uIndex)
+	{
+		v3Corner[uIndex] = vector3(m_m4ToWorld * vector4(v3Corner[uIndex], 1.0f));
+	}
+
+	vector3 v3OtherCorner[8];
+
+	vector3 oMin = a_pOther->GetMinGlobal;
+	vector3 oMax = a_pOther->GetMaxGlobal;
+	//Back square
+	v3OtherCorner[0] = oMin;
+	v3OtherCorner[1] = vector3(oMax.x, oMin.y, oMin.z);
+	v3OtherCorner[2] = vector3(oMin.x, oMax.y, oMin.z);
+	v3OtherCorner[3] = vector3(oMax.x, oMax.y, oMin.z);
+
+	//Front square
+	v3OtherCorner[4] = vector3(oMin.x, oMin.y, oMax.z);
+	v3OtherCorner[5] = vector3(oMax.x, oMin.y, oMax.z);
+	v3OtherCorner[6] = vector3(oMin.x, oMax.y, oMax.z);
+	v3OtherCorner[7] = oMax;
+	
+
 
 	//there is no axis test that separates this two objects
 	return eSATResults::SAT_NONE;

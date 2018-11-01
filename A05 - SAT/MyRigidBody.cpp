@@ -86,7 +86,7 @@ void MyRigidBody::SetModelMatrix(matrix4 a_m4ModelMatrix)
 	m_m4ToWorld = a_m4ModelMatrix;
 
 	//Calculate the 8 corners of the cube
-	vector3 v3Corner[8];
+	
 	//Back square
 	v3Corner[0] = m_v3MinL;
 	v3Corner[1] = vector3(m_v3MaxL.x, m_v3MinL.y, m_v3MinL.z);
@@ -276,178 +276,214 @@ void MyRigidBody::AddToRenderList(void)
 
 uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 {
-	//std::vector<vector3> foo;
-	//foo.push_back(this->m_m4ToWorld*vector4(1, 0, 0, 0));
-	/*
-	Your code goes here instead of this comment;
+ // local direction vectors , right, up, forward
 
-	For this method, if there is an axis that separates the two objects
-	then the return will be different than 0; 1 for any separating axis
-	is ok if you are not going for the extra credit, if you could not
-	find a separating axis you need to return 0, there is an enum in
-	Simplex that might help you [eSATResults] feel free to use it.
-	(eSATResults::SAT_NONE has a value of 0)
-	*/
-	/*
-	vector3 v3Corner[8];
-	//Back square
-	v3Corner[0] = m_v3MinL;
-	v3Corner[1] = vector3(m_v3MaxL.x, m_v3MinL.y, m_v3MinL.z);
-	v3Corner[2] = vector3(m_v3MinL.x, m_v3MaxL.y, m_v3MinL.z);
-	v3Corner[3] = vector3(m_v3MaxL.x, m_v3MaxL.y, m_v3MinL.z);
+ //currecnt object
+vector3 right = glm::normalize(v3Corner[1] - v3Corner[0]);// back down right - back down left
+vector3 up = glm::normalize(v3Corner[2] - v3Corner[0]); //back up left - back down left 
+vector3 forward = glm::normalize(v3Corner[4] - v3Corner[0]); //front down left - back down left
 
-	//Front square
-	v3Corner[4] = vector3(m_v3MinL.x, m_v3MinL.y, m_v3MaxL.z);
-	v3Corner[5] = vector3(m_v3MaxL.x, m_v3MinL.y, m_v3MaxL.z);
-	v3Corner[6] = vector3(m_v3MinL.x, m_v3MaxL.y, m_v3MaxL.z);
-	v3Corner[7] = m_v3MaxL;
+vector3 otherRight = glm::normalize(a_pOther->v3Corner[1] - a_pOther->v3Corner[0]);//other object
+vector3 otherUp = glm::normalize(a_pOther->v3Corner[2] - a_pOther->v3Corner[0]);
+vector3 otherForward = glm::normalize(a_pOther->v3Corner[4] - a_pOther->v3Corner[0]);
 
-	for (uint uIndex = 0; uIndex < 8; ++uIndex)
+// mins and maxes of points along projection line
+float starterNum = 9990; //large placeholder value to be replaced later
+float min, minOther; 
+min = minOther = starterNum;
+float max, maxOther;
+max = maxOther = -starterNum;
+int looper = 8;//value for looping through points
+
+
+//loop to check collision
+for (int i = 0; i < looper; i++)// normal checks using right up forward
+{
+	
+	float cont = glm::dot(right, v3Corner[i]); //fill container with the projection of the corner on the right direction vector
+	float otherCont = glm::dot(right, a_pOther->v3Corner[i]); //fill container with the projection of the other objects corner on the right direction vector
+	
+	vector4 minzMaxz = compareHelper(cont, otherCont, min, max, minOther, maxOther); //compares the values in the container to see if it is a min or max for the line
+	min = minzMaxz.x;
+	max = minzMaxz.y;
+	minOther = minzMaxz.z;
+	maxOther = minzMaxz.w;
+}
+if (min >= maxOther || minOther >= max) //if the lines dont overlap there is no collision
+	return 1;
+
+// Reset
+min = minOther = starterNum;
+max = maxOther = -starterNum;
+
+for (int i = 0; i < looper; i++)
+{
+	float cont = glm::dot(otherRight, v3Corner[i]); //project corners on right vector of other object
+	float otherCont = glm::dot(otherRight, a_pOther->v3Corner[i]);
+	
+	vector4 minzMaxz = compareHelper(cont, otherCont, min, max, minOther, maxOther);
+
+	min = minzMaxz.x;
+	max = minzMaxz.y;
+	minOther = minzMaxz.z;
+	maxOther = minzMaxz.w;
+}
+if (min >= maxOther || minOther >= max)//if the lines dont overlap there is no collision	
+	return 1;
+
+//reset
+min = minOther = starterNum; 
+max = maxOther = -starterNum;
+
+for (int i = 0; i < looper; i++)
+{
+
+	float cont = glm::dot(up, v3Corner[i]); //project corners on up vector
+	float otherCont = glm::dot(up, a_pOther->v3Corner[i]);
+
+	vector4 minzMaxz = compareHelper(cont, otherCont, min, max, minOther, maxOther);
+
+	min = minzMaxz.x;
+	max = minzMaxz.y;
+	minOther = minzMaxz.z;
+	maxOther = minzMaxz.w;
+}
+if (min >= maxOther || minOther >= max)//if the lines dont overlap there is no collision
+	return 1;
+
+//reset
+min = minOther = starterNum;
+max = maxOther = -starterNum;
+
+for (int i = 0; i < looper; i++)
+{
+	
+	float cont = glm::dot(otherUp, v3Corner[i]);//project corners on up of other object
+	float otherCont = glm::dot(otherUp, a_pOther->v3Corner[i]);
+
+	vector4 minzMaxz = compareHelper(cont, otherCont, min, max, minOther, maxOther);
+
+	min = minzMaxz.x;
+	max = minzMaxz.y;
+	minOther = minzMaxz.z;
+	maxOther = minzMaxz.w;
+}
+if (min >= maxOther || minOther >= max)//if the lines dont overlap there is no collision
+	return 1;
+
+//reset
+min = minOther = starterNum;
+max = maxOther = -starterNum;
+
+for (int i = 0; i < looper; i++)
+{
+	
+	float cont = glm::dot(forward, v3Corner[i]);//project corners on forward vector
+	float otherCont = glm::dot(forward, a_pOther->v3Corner[i]);
+
+	vector4 minzMaxz = compareHelper(cont, otherCont, min, max, minOther, maxOther);
+
+	min = minzMaxz.x;
+	max = minzMaxz.y;
+	minOther = minzMaxz.z;
+	maxOther = minzMaxz.w;
+}
+if (min >= maxOther || minOther >= max)//if the lines dont overlap there is no collision
+	return 1;
+
+//reset
+min = minOther = starterNum;
+max = maxOther = -starterNum;
+
+for (int i = 0; i < looper; i++)
+{
+
+	float cont = glm::dot(otherForward, v3Corner[i]); //project corners on forward of other object
+	float otherCont = glm::dot(otherForward, a_pOther->v3Corner[i]);
+
+	vector4 minzMaxz = compareHelper(cont, otherCont, min, max, minOther, maxOther);
+
+	min = minzMaxz.x;
+	max = minzMaxz.y;
+	minOther = minzMaxz.z;
+	maxOther = minzMaxz.w;
+}
+if (min >= maxOther || minOther >= max)//if the lines dont overlap there is no collision
+	return 1;
+
+
+// find other axis to project on via the cross product and save them 
+
+vector3 generatedAxis[9];
+generatedAxis[0] = glm::cross(right, otherRight);
+generatedAxis[1] = glm::cross(right, otherUp);
+generatedAxis[2] = glm::cross(right, otherForward);
+
+generatedAxis[3] = glm::cross(up, otherRight);
+generatedAxis[4] = glm::cross(up, otherUp);
+generatedAxis[5] = glm::cross(up, otherForward);
+
+generatedAxis[6] = glm::cross(forward, otherRight);
+generatedAxis[7] = glm::cross(forward, otherUp);
+generatedAxis[8] = glm::cross(forward, otherForward);
+
+
+// Loop to check to check if objects are colliding using the cross product axis
+for (int i = 0; i < 9; i++) //loops through generated axis
+{
+	//reset
+	 min = minOther = starterNum;
+	 max = maxOther = -starterNum;
+	
+	if (generatedAxis[i] != vector3(0)) //cant project on zero vector  
 	{
-		v3Corner[uIndex] = vector3(m_m4ToWorld * vector4(v3Corner[uIndex], 1.0f));
+		for (int j = 0; j < 8; j++) //loops through corners
+		{
+			
+			float cont = glm::dot(generatedAxis[i], v3Corner[j]);//projects all the corners on the generated axis
+			float otherCont = glm::dot(generatedAxis[i], a_pOther->v3Corner[j]);
+
+			vector4 minzMaxz = compareHelper(cont, otherCont, min, max, minOther, maxOther);
+
+			min = minzMaxz.x;
+			max = minzMaxz.y;
+			minOther = minzMaxz.z;
+			maxOther = minzMaxz.w;
+		}
+		if (min >= maxOther || minOther >= max)//if the lines dont overlap there is no collision
+			return 1;
+	}
+}
+//there is no axis test that separates this two objects
+return 0;
+}
+
+///compare passed in projected corners inside the containers to see if they are mins or maxs on the line 
+vector4 MyRigidBody::compareHelper(float container, float otherContainer, float minimum, float maximum, float otherMinimum, float otherMaximum) {
+	
+	//replaces mins and maxs 
+	if (container <= minimum)
+	{
+		minimum = container;
 	}
 
-	vector3 v3OtherCorner[8];
-
-	vector3 oMin = a_pOther->GetMinGlobal;
-	vector3 oMax = a_pOther->GetMaxGlobal;
-	//Back square
-	v3OtherCorner[0] = oMin;
-	v3OtherCorner[1] = vector3(oMax.x, oMin.y, oMin.z);
-	v3OtherCorner[2] = vector3(oMin.x, oMax.y, oMin.z);
-	v3OtherCorner[3] = vector3(oMax.x, oMax.y, oMin.z);
-
-	//Front square
-	v3OtherCorner[4] = vector3(oMin.x, oMin.y, oMax.z);
-	v3OtherCorner[5] = vector3(oMax.x, oMin.y, oMax.z);
-	v3OtherCorner[6] = vector3(oMin.x, oMax.y, oMax.z);
-	v3OtherCorner[7] = oMax;
-	
-	*/
-	struct OBB {
-		vector3 c; //center
-		vector3 u[3]; //local x- y- z- axis
-		vector3 e; //halfwidth
-	};
-
-	OBB a;
-	a.c = GetCenterGlobal();
-	//a.u[0] = vector3(1.0f, 0, 0);
-	a.u[0] = glm::normalize(vector3(m_v3MaxG.x, m_v3MinG.y, m_v3MaxG.z) - vector3(m_v3MinG.x, m_v3MinG.y, m_v3MaxG.z));
-	//a.u[1] = vector3(0, 1.0f, 0);
-	a.u[1] = glm::normalize(m_v3MaxG - vector3(m_v3MaxG.x, m_v3MinG.y, m_v3MaxG.z));
-	//a.u[2] = vector3(0, 0, 1.0f);
-	a.u[2] = glm::normalize(m_v3MaxG - vector3(m_v3MaxG.x, m_v3MaxG.y, m_v3MinG.z));
-	a.e = m_v3HalfWidth;
-
-	//v3Corner[5] = vector3(m_v3MaxL.x, m_v3MinL.y, m_v3MaxL.z);
-	//v3Corner[7] = m_v3MaxL;
-
-	
-
-
-	//vector3 normXL = glm::normalize(vector3((m_v3MaxL.y - m_v3MinL.y), -1.0f * (m_v3MaxL.x - m_v3MinL.x), m_v3MaxL.z));
-	//vector3 normYL = glm::normalize(vector3(-1.0f * (m_v3MaxL.y - m_v3MinL.y), (m_v3MaxL.x - m_v3MinL.x), m_v3MaxL.z));
-	//vector3 normXL = glm::normalize(vector3(-1.0f * (m_v3MaxL.y - m_v3MinL.y), (m_v3MaxL.x - m_v3MinL.x), m_v3MaxL.z));
-	//normXL = glm::normalize(normXL);
-
-	OBB b;
-	b.c = a_pOther->GetCenterGlobal();
-	//a.u[0] = vector3(1.0f, 0, 0);
-	b.u[0] = glm::normalize(vector3(a_pOther->m_v3MaxG.x, a_pOther->m_v3MinG.y, a_pOther->m_v3MaxG.z) - vector3(a_pOther->m_v3MinG.x, a_pOther->m_v3MinG.y, a_pOther->m_v3MaxG.z));
-	//a.u[1] = vector3(0, 1.0f, 0);
-	b.u[1] = glm::normalize(a_pOther->m_v3MaxG - vector3(a_pOther->m_v3MaxG.x, a_pOther->m_v3MinG.y, a_pOther->m_v3MaxG.z));
-	//a.u[2] = vector3(0, 0, 1.0f);
-	b.u[2] = glm::normalize(a_pOther->m_v3MaxG - vector3(a_pOther->m_v3MaxG.x, a_pOther->m_v3MaxG.y, a_pOther->m_v3MinG.z));
-	b.e = a_pOther->GetHalfWidth(); //might have to change e[0] to e.x etc
-
-	float ra;
-	float rb;
-	matrix3 R;
-	matrix3 AbsR;
-
-	// Compute rotation matrix expressing b in a's coordinate frame
-	for (int i = 0; i < 3; i++)
-		for (int j = 0; j < 3; j++)
-			R[i][j] = glm::dot(a.u[i], b.u[j]);//R[i][j] = Dot(a.u[i], b.u[j]);
-	
-
-	// Compute translation vector t
-	vector3 t = b.c - a.c;
-	// Bring translation into a's coordinate frame
-	t = vector3(glm::dot(t, a.u[0]), glm::dot(t, a.u[2]), glm::dot(t, a.u[2]));
-	
-
-	// Compute common subexpressions. Add in an epsilon term to
-	// counteract arithmetic errors when two edges are parallel and
-	// their cross product is (near) null (see text for details)
-	for (int i = 0; i < 3; i++)
-		for (int j = 0; j < 3; j++)
-			AbsR[i][j] = glm::abs(R[i][j]) + DBL_EPSILON;//AbsR[i][j] = glm::abs(R[i][j]) + EPSILON;
-	
-
-	// Test axes L = A0, L = A1, L = A2
-	for (int i = 0; i < 3; i++) {
-		ra = a.e[i];
-		rb = b.e[0] * AbsR[i][0] + b.e[1] * AbsR[i][1] + b.e[2] * AbsR[i][2];
-		if (glm::abs(t[i]) > ra + rb) return 1;
+	if (container >= maximum)
+	{
+		maximum = container;
 	}
 
-	// Test axes L = B0, L = B1, L = B2
-	for (int i = 0; i < 3; i++) {
-		ra = a.e[0] * AbsR[0][i] + a.e[1] * AbsR[1][i] + a.e[2] * AbsR[2][i];
-		rb = b.e[i];
-		if (glm::abs(t[0] * R[0][i] + t[1] * R[1][i] + t[2] * R[2][i]) > ra + rb) return 1;
+
+	//other object minz and maxs
+	if (otherContainer <= otherMinimum)
+	{
+		otherMinimum = otherContainer;
 	}
 
-	// Test axis L = A0 x B0
-	ra = a.e[1] * AbsR[2][0] + a.e[2] * AbsR[1][0];
-	rb = b.e[1] * AbsR[0][2] + b.e[2] * AbsR[0][1];
-	if (glm::abs(t[2] * R[1][0] - t[1] * R[2][0]) > ra + rb) return 1;
-
-	// Test axis L = A0 x B1
-	ra = a.e[1] * AbsR[2][1] + a.e[2] * AbsR[1][1];
-	rb = b.e[0] * AbsR[0][2] + b.e[2] * AbsR[0][0];
-	if (glm::abs(t[2] * R[1][1] - t[1] * R[2][1]) > ra + rb) return 1;
-
-	// Test axis L = A0 x B2
-	ra = a.e[1] * AbsR[2][2] + a.e[2] * AbsR[1][2];
-	rb = b.e[0] * AbsR[0][1] + b.e[1] * AbsR[0][0];
-	if (glm::abs(t[2] * R[1][2] - t[1] * R[2][2]) > ra + rb) return 1;
-
-	// Test axis L = A1 x B0
-	ra = a.e[0] * AbsR[2][0] + a.e[2] * AbsR[0][0];
-	rb = b.e[1] * AbsR[1][2] + b.e[2] * AbsR[1][1];
-
-	if (glm::abs(t[0] * R[2][0] - t[2] * R[0][0]) > ra + rb) return 1;
-
-	// Test axis L = A1 x B1
-	ra = a.e[0] * AbsR[2][1] + a.e[2] * AbsR[0][1];
-	rb = b.e[0] * AbsR[1][2] + b.e[2] * AbsR[1][0];
-	if (glm::abs(t[0] * R[2][1] - t[2] * R[0][1]) > ra + rb) return 1;
-
-	// Test axis L = A1 x B2
-	ra = a.e[0] * AbsR[2][2] + a.e[2] * AbsR[0][2];
-	rb = b.e[0] * AbsR[1][1] + b.e[1] * AbsR[1][0];
-	if (glm::abs(t[0] * R[2][2] - t[2] * R[0][2]) > ra + rb) return 1;
-
-	// Test axis L = A2 x B0
-	ra = a.e[0] * AbsR[1][0] + a.e[1] * AbsR[0][0];
-	rb = b.e[1] * AbsR[2][2] + b.e[2] * AbsR[2][1];
-	if (glm::abs(t[1] * R[0][0] - t[0] * R[1][0]) > ra + rb) return 1;
-
-	// Test axis L = A2 x B1
-	ra = a.e[0] * AbsR[1][1] + a.e[1] * AbsR[0][1];
-	rb = b.e[0] * AbsR[2][2] + b.e[2] * AbsR[2][0];
-	if (glm::abs(t[1] * R[0][1] - t[0] * R[1][1]) > ra + rb) return 1;
-
-	// Test axis L = A2 x B2
-	ra = a.e[0] * AbsR[1][2] + a.e[1] * AbsR[0][2];
-	rb = b.e[0] * AbsR[2][1] + b.e[1] * AbsR[2][0];
-	if (glm::abs(t[1] * R[0][2] - t[0] * R[1][2]) > ra + rb) return 1;
+	if (otherContainer >= otherMaximum)
+	{
+		otherMaximum = otherContainer;
+	}
 
 
-	//there is no axis test that separates this two objects
-	//return eSATResults::SAT_NONE;
-	return 0;
+	return vector4(minimum, maximum, otherMinimum, otherMaximum); //returns all minz and maxs 
 }

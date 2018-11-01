@@ -18,7 +18,7 @@ class MyRigidBody
 	bool m_bVisibleBS = false; //Visibility of bounding sphere
 	bool m_bVisibleOBB = true; //Visibility of Oriented bounding box
 	bool m_bVisibleARBB = true; //Visibility of axis (Re)aligned bounding box
-
+	vector3 v3Corner[8];
 	float m_fRadius = 0.0f; //Radius
 
 	vector3 m_v3ColorColliding = C_RED; //Color when colliding
@@ -247,6 +247,13 @@ private:
 	OUTPUT: 0 for colliding, other = first axis that succeeds test
 	*/
 	uint SAT(MyRigidBody* const a_pOther);
+	
+	/*
+	USAGE: used by SAT to find min and max along a projection line
+	ARGUMENTS: placeholder container for this objects corners and the other objects corners
+	OUTPUT: void
+	*/
+	vector4 compareHelper(float container, float otherContainer, float minimum, float maximum, float otherMinimum, float otherMaximum);
 };//class
 
 } //namespace Simplex

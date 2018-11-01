@@ -86,7 +86,7 @@ void MyRigidBody::SetModelMatrix(matrix4 a_m4ModelMatrix)
 	m_m4ToWorld = a_m4ModelMatrix;
 
 	//Calculate the 8 corners of the cube
-	vector3 v3Corner[8];
+	
 	//Back square
 	v3Corner[0] = m_v3MinL;
 	v3Corner[1] = vector3(m_v3MaxL.x, m_v3MinL.y, m_v3MinL.z);
@@ -276,17 +276,214 @@ void MyRigidBody::AddToRenderList(void)
 
 uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 {
-	/*
-	Your code goes here instead of this comment;
+ // local direction vectors , right, up, forward
 
-	For this method, if there is an axis that separates the two objects
-	then the return will be different than 0; 1 for any separating axis
-	is ok if you are not going for the extra credit, if you could not
-	find a separating axis you need to return 0, there is an enum in
-	Simplex that might help you [eSATResults] feel free to use it.
-	(eSATResults::SAT_NONE has a value of 0)
-	*/
+ //currecnt object
+vector3 right = glm::normalize(v3Corner[1] - v3Corner[0]);// back down right - back down left
+vector3 up = glm::normalize(v3Corner[2] - v3Corner[0]); //back up left - back down left 
+vector3 forward = glm::normalize(v3Corner[4] - v3Corner[0]); //front down left - back down left
 
-	//there is no axis test that separates this two objects
-	return eSATResults::SAT_NONE;
+vector3 otherRight = glm::normalize(a_pOther->v3Corner[1] - a_pOther->v3Corner[0]);//other object
+vector3 otherUp = glm::normalize(a_pOther->v3Corner[2] - a_pOther->v3Corner[0]);
+vector3 otherForward = glm::normalize(a_pOther->v3Corner[4] - a_pOther->v3Corner[0]);
+
+// mins and maxes of points along projection line
+float starterNum = 9990; //large placeholder value to be replaced later
+float min, minOther; 
+min = minOther = starterNum;
+float max, maxOther;
+max = maxOther = -starterNum;
+int looper = 8;//value for looping through points
+
+
+//loop to check collision
+for (int i = 0; i < looper; i++)// normal checks using right up forward
+{
+	
+	float cont = glm::dot(right, v3Corner[i]); //fill container with the projection of the corner on the right direction vector
+	float otherCont = glm::dot(right, a_pOther->v3Corner[i]); //fill container with the projection of the other objects corner on the right direction vector
+	
+	vector4 minzMaxz = compareHelper(cont, otherCont, min, max, minOther, maxOther); //compares the values in the container to see if it is a min or max for the line
+	min = minzMaxz.x;
+	max = minzMaxz.y;
+	minOther = minzMaxz.z;
+	maxOther = minzMaxz.w;
+}
+if (min >= maxOther || minOther >= max) //if the lines dont overlap there is no collision
+	return 1;
+
+// Reset
+min = minOther = starterNum;
+max = maxOther = -starterNum;
+
+for (int i = 0; i < looper; i++)
+{
+	float cont = glm::dot(otherRight, v3Corner[i]); //project corners on right vector of other object
+	float otherCont = glm::dot(otherRight, a_pOther->v3Corner[i]);
+	
+	vector4 minzMaxz = compareHelper(cont, otherCont, min, max, minOther, maxOther);
+
+	min = minzMaxz.x;
+	max = minzMaxz.y;
+	minOther = minzMaxz.z;
+	maxOther = minzMaxz.w;
+}
+if (min >= maxOther || minOther >= max)//if the lines dont overlap there is no collision	
+	return 1;
+
+//reset
+min = minOther = starterNum; 
+max = maxOther = -starterNum;
+
+for (int i = 0; i < looper; i++)
+{
+
+	float cont = glm::dot(up, v3Corner[i]); //project corners on up vector
+	float otherCont = glm::dot(up, a_pOther->v3Corner[i]);
+
+	vector4 minzMaxz = compareHelper(cont, otherCont, min, max, minOther, maxOther);
+
+	min = minzMaxz.x;
+	max = minzMaxz.y;
+	minOther = minzMaxz.z;
+	maxOther = minzMaxz.w;
+}
+if (min >= maxOther || minOther >= max)//if the lines dont overlap there is no collision
+	return 1;
+
+//reset
+min = minOther = starterNum;
+max = maxOther = -starterNum;
+
+for (int i = 0; i < looper; i++)
+{
+	
+	float cont = glm::dot(otherUp, v3Corner[i]);//project corners on up of other object
+	float otherCont = glm::dot(otherUp, a_pOther->v3Corner[i]);
+
+	vector4 minzMaxz = compareHelper(cont, otherCont, min, max, minOther, maxOther);
+
+	min = minzMaxz.x;
+	max = minzMaxz.y;
+	minOther = minzMaxz.z;
+	maxOther = minzMaxz.w;
+}
+if (min >= maxOther || minOther >= max)//if the lines dont overlap there is no collision
+	return 1;
+
+//reset
+min = minOther = starterNum;
+max = maxOther = -starterNum;
+
+for (int i = 0; i < looper; i++)
+{
+	
+	float cont = glm::dot(forward, v3Corner[i]);//project corners on forward vector
+	float otherCont = glm::dot(forward, a_pOther->v3Corner[i]);
+
+	vector4 minzMaxz = compareHelper(cont, otherCont, min, max, minOther, maxOther);
+
+	min = minzMaxz.x;
+	max = minzMaxz.y;
+	minOther = minzMaxz.z;
+	maxOther = minzMaxz.w;
+}
+if (min >= maxOther || minOther >= max)//if the lines dont overlap there is no collision
+	return 1;
+
+//reset
+min = minOther = starterNum;
+max = maxOther = -starterNum;
+
+for (int i = 0; i < looper; i++)
+{
+
+	float cont = glm::dot(otherForward, v3Corner[i]); //project corners on forward of other object
+	float otherCont = glm::dot(otherForward, a_pOther->v3Corner[i]);
+
+	vector4 minzMaxz = compareHelper(cont, otherCont, min, max, minOther, maxOther);
+
+	min = minzMaxz.x;
+	max = minzMaxz.y;
+	minOther = minzMaxz.z;
+	maxOther = minzMaxz.w;
+}
+if (min >= maxOther || minOther >= max)//if the lines dont overlap there is no collision
+	return 1;
+
+
+// find other axis to project on via the cross product and save them 
+
+vector3 generatedAxis[9];
+generatedAxis[0] = glm::cross(right, otherRight);
+generatedAxis[1] = glm::cross(right, otherUp);
+generatedAxis[2] = glm::cross(right, otherForward);
+
+generatedAxis[3] = glm::cross(up, otherRight);
+generatedAxis[4] = glm::cross(up, otherUp);
+generatedAxis[5] = glm::cross(up, otherForward);
+
+generatedAxis[6] = glm::cross(forward, otherRight);
+generatedAxis[7] = glm::cross(forward, otherUp);
+generatedAxis[8] = glm::cross(forward, otherForward);
+
+
+// Loop to check to check if objects are colliding using the cross product axis
+for (int i = 0; i < 9; i++) //loops through generated axis
+{
+	//reset
+	 min = minOther = starterNum;
+	 max = maxOther = -starterNum;
+	
+	if (generatedAxis[i] != vector3(0)) //cant project on zero vector  
+	{
+		for (int j = 0; j < 8; j++) //loops through corners
+		{
+			
+			float cont = glm::dot(generatedAxis[i], v3Corner[j]);//projects all the corners on the generated axis
+			float otherCont = glm::dot(generatedAxis[i], a_pOther->v3Corner[j]);
+
+			vector4 minzMaxz = compareHelper(cont, otherCont, min, max, minOther, maxOther);
+
+			min = minzMaxz.x;
+			max = minzMaxz.y;
+			minOther = minzMaxz.z;
+			maxOther = minzMaxz.w;
+		}
+		if (min >= maxOther || minOther >= max)//if the lines dont overlap there is no collision
+			return 1;
+	}
+}
+//there is no axis test that separates this two objects
+return 0;
+}
+
+///compare passed in projected corners inside the containers to see if they are mins or maxs on the line 
+vector4 MyRigidBody::compareHelper(float container, float otherContainer, float minimum, float maximum, float otherMinimum, float otherMaximum) {
+	
+	//replaces mins and maxs 
+	if (container <= minimum)
+	{
+		minimum = container;
+	}
+
+	if (container >= maximum)
+	{
+		maximum = container;
+	}
+
+
+	//other object minz and maxs
+	if (otherContainer <= otherMinimum)
+	{
+		otherMinimum = otherContainer;
+	}
+
+	if (otherContainer >= otherMaximum)
+	{
+		otherMaximum = otherContainer;
+	}
+
+
+	return vector4(minimum, maximum, otherMinimum, otherMaximum); //returns all minz and maxs 
 }

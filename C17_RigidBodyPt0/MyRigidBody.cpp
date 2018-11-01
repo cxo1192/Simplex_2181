@@ -176,7 +176,7 @@ bool MyRigidBody::IsColliding(MyRigidBody* const other)
 	vector3 v3Max1 = m_m4ToWorld * vector4(m_v3MaxL, 1.0f);
 	vector3 v3Min1 = m_m4ToWorld * vector4(m_v3MinL, 1.0f);
 
-	vector3 v3Max1 = m_m4ToWorld * vector4(m_v3MaxL, 1.0f);
+	vector3 v3Max2 = m_m4ToWorld * vector4(m_v3MaxL, 1.0f);
 	vector3 v3Min2 = m_m4ToWorld * vector4(m_v3MinL, 1.0f);
 
 	bool bColliding = false;
@@ -187,7 +187,7 @@ bool MyRigidBody::IsColliding(MyRigidBody* const other)
 		return false;
 
 
-	if (m_v3MaxL.z < other->m_v3MinL.z || m_v3MinL.z > other->m_v3MaxL.z)
+	if (v3Max1.z < other->m_v3MinL.z || m_v3MinL.z > other->m_v3MaxL.z)
 		return false;
 
 	return bColliding;

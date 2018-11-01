@@ -99,18 +99,19 @@ void MyRigidBody::SetModelMatrix(matrix4 a_m4ModelMatrix)
 	corners[7] = m_v3MaxL;
 	
 
-	for (uint i =0; i < 8; ++i)//convert corners to world
+	for (uint i = 0; i < 8; ++i)//convert corners to world
 	{
 		corners[i] = vector3(m_m4ToWorld * vector4(corners[i], 1.0f));
 	}
 
 
 	//starting max/min
-	m_v3MinG = m_v3MinL;
-	m_v3MaxG = m_v3MaxL;
+	//m_v3MinG = m_v3MinL;
+	//m_v3MaxG = m_v3MaxL;
+	m_v3MaxG = m_v3MinG = corners[0];
 
 	//find true max/min
-	for (size_t i = 1; i < 8; ++i)
+	for (uint i = 1; i < 8; ++i)
 	{
 		if (m_v3MaxG.x < corners[i].x) m_v3MaxG.x = corners[i].x;
 		else if (m_v3MinG.x > corners[i].x) m_v3MinG.x = corners[i].x;
@@ -127,6 +128,8 @@ void MyRigidBody::SetModelMatrix(matrix4 a_m4ModelMatrix)
 
 	//we calculate the distance between min and max vectors
 	m_v3ARBBSize = m_v3MaxG - m_v3MinG;
+
+	//m_v3HalfWidth = m_v3ARBBSize / 2.0f;
 }
 //The big 3
 MyRigidBody::MyRigidBody(std::vector<vector3> a_pointList)

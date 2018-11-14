@@ -62,9 +62,9 @@ void Simplex::MyOctant::IsColliding(void)
 
 	for (uint i = 0; i < iEntityCount; ++i)
 	{
-		MyRigidBody * pRB = l_Entity_List[i].GetRigidBody();
-		if (pRB.IsColliding(m_pRigidBody)) {
-			l_Entity_List[i].AddDimension(m_ID);
+		MyRigidBody * pRB = l_Entity_List[i]->GetRigidBody();
+		if (pRB->IsColliding(m_pRigidBody)) {
+			l_Entity_List[i]->AddDimension(m_ID);
 		}
 	}
 }

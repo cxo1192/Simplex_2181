@@ -31,6 +31,7 @@ void Application::InitVariables(void)
 	}
 	m_uOctantLevels = 1;
 	m_pEntityMngr->Update();
+	m_pRoot = new Octree();
 }
 void Application::Update(void)
 {
@@ -48,6 +49,7 @@ void Application::Update(void)
 
 	//Add objects to render list
 	m_pEntityMngr->AddEntityToRenderList(-1, true);
+	m_pRoot->Display();
 }
 void Application::Display(void)
 {
@@ -74,6 +76,7 @@ void Application::Display(void)
 }
 void Application::Release(void)
 {
+	SafeDelete(m_pRoot);
 	//release GUI
 	ShutdownGUI();
 }

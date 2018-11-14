@@ -73,7 +73,7 @@ void Application::Update(void)
 		
 	//Add objects to render list
 	m_pEntityMngr->AddEntityToRenderList(-1, true);
-	m_pRoot.Display();
+	m_pRoot->Display();
 }
 void Application::Display(void)
 {

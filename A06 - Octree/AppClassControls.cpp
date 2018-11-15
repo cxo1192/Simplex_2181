@@ -147,7 +147,7 @@ void Application::ProcessKeyReleased(sf::Event a_event)
 			*/
 		}
 		break;
-	case sf::Keyboard::Z:
+	case sf::Keyboard::P:
 		optimize = !optimize;
 		break;
 	case sf::Keyboard::LShift:

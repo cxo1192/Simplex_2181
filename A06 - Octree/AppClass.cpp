@@ -29,12 +29,23 @@ void Application::InitVariables(void)
 			m_pEntityMngr->SetModelMatrix(m4Position);
 		}
 	}
-	m_uOctantLevels = 1;
+	m_uOctantLevels = 0;
 	m_pEntityMngr->Update();
-	m_pRoot = new Octree();
+	//m_pRoot = new Octree(5,uInstances,true,vector3(0),vector3(0));
 }
 void Application::Update(void)
 {
+
+	if (m_pRoot != nullptr) {
+		m_pEntityMngr->ClearDimensionSetAll();
+		SafeDelete(m_pRoot);
+	}
+
+	if (optimize) { //press z to trigger check
+		m_pRoot = new Octree(m_uOctantLevels,5,true, vector3(0), vector3(0)); //octant levels might need to be 900
+	}
+
+
 	//Update the system so it knows how much time has passed since the last call
 	m_pSystem->Update();
 
@@ -49,7 +60,9 @@ void Application::Update(void)
 
 	//Add objects to render list
 	m_pEntityMngr->AddEntityToRenderList(-1, true);
-	m_pRoot->Display();
+
+	/*if(optimize)
+		m_pRoot->Display();*/
 }
 void Application::Display(void)
 {
@@ -57,7 +70,10 @@ void Application::Display(void)
 	ClearScreen();
 
 	//display octree
-	//m_pRoot->Display();
+
+	if (optimize) { //display visual representation 
+		m_pRoot->Display(m_uOctantID);
+	}
 	
 	// draw a skybox
 	m_pMeshMngr->AddSkyboxToRenderList();

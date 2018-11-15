@@ -11,18 +11,32 @@ class Octree
 	vector<int> containedEntitiesByIndex;
 	vector3 maxCorner;
 	vector3 minCorner;
-	uint entityCount = 0; int m_nData = 0; //Number of elements in the list of elements
+	vector3 octCenter;
+	vector3 octSize;
+	uint currentLevel = 0; //number of levels deep
+	uint currentLevelEntityCount = 0; //number of entities
+	std::vector<uint> entityList; //entities in this octant
+	std::vector<Octree*> childrenOfRoot;
+	Octree* m_pParent = nullptr;
+	Octree* m_pChild[8];
+	Octree* root = nullptr;
+	uint m_ID = 0; //current octant ID #
+	uint numChildren = 0;
+
+	//generic
+	int m_nData = 0; //Number of elements in the list of elements
 	std::vector<int> m_lData; //list of elements
 	MeshManager * m_pMeshMngr = nullptr;
 	MyEntityManager * m_pEntityMngr = nullptr;
 	MyRigidBody* m_pRigidBody = nullptr;
-	uint m_ID = 0;
-	Octree* m_pParent = nullptr;
-	Octree* m_pChild[8];
+
+	
 
 public:
-	void Display(void);
-	void IsColliding(void);
+	void Display(uint id);
+	void DisplayHelper(void);
+	void DisplayHelper1(void);
+	bool IsColliding(uint rbi);
 	void SubDivide(void);
 	//void Octree(vector3 m_v3Size);
 	/*
@@ -30,7 +44,7 @@ public:
 	Arguments: ---
 	Output: class object instance
 	*/
-	Octree(void);
+	Octree(uint maxLev, uint entCount, bool isRoot, vector3 newCent, vector3 newSize);//root ctor
 	/*
 	Usage: Copy Constructor
 	Arguments: class object to copy
@@ -49,6 +63,8 @@ public:
 	Output: ---
 	*/
 	~Octree(void);
+
+	void ConfigureEntityDimensions(void);
 
 	/*
 	Usage: Changes object contents for other object's
@@ -78,6 +94,7 @@ public:
 	Output: ---
 	*/
 	void SetDataOnVector(int a_nData);
+	uint GetOctantCount(void);
 	/*
 	Usage: gets data on vector at the specified entry
 	Arguments: int a_nIndex -> entry index

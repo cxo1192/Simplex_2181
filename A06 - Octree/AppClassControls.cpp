@@ -113,14 +113,18 @@ void Application::ProcessKeyReleased(sf::Event a_event)
 		break;
 	case sf::Keyboard::PageUp:
 		++m_uOctantID;
-		
+		if (m_uOctantID > -1) {
+			individual = true;
+		}
 		/*if (m_uOctantID >= m_pRoot->GetOctantCount())
 			m_uOctantID = - 1;*/
 		
 		break;
 	case sf::Keyboard::PageDown:
 		--m_uOctantID;
-		
+		if (m_uOctantID < 0) {
+			individual = false;
+		}
 		/*if (m_uOctantID >= m_pRoot->GetOctantCount())
 			m_uOctantID = - 1;*/
 		

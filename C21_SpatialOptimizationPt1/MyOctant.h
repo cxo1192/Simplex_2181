@@ -16,18 +16,19 @@ class MyOctant
 {
 	int m_nData = 0; //Number of elements in the list of elements
 	std::vector<int> m_lData; //list of elements
-	MeshManager * m_pMeshMngr = nullptr;
-	MyEntityManager * m_pEntityMngr = nullptr;
+	MeshManager* m_pMeshMngr = nullptr; //Pointer to Mesh manager
+	MyEntityManager* m_pEntityMngr = nullptr;
 	MyRigidBody* m_pRigidBody = nullptr;
-	uint m_ID = 0;
+	uint m_iID = 0;
+	static uint m_nCount;
 	MyOctant* m_pParent = nullptr;
 	MyOctant* m_pChild[8];
-
+	uint m_nLevel = 0;
 public:
 	void Display(void);
 	void IsColliding(void);
-	void SubDivide(void);
-	//void MyOctant(vector3 m_v3Size);
+	void Subdivide(void);
+	MyOctant(vector3 a_v3Center, float a_fSize);
 	/*
 	Usage: Constructor
 	Arguments: ---
@@ -105,7 +106,7 @@ private:
 
 } //namespace Simplex
 
-#endif //__MyOctant_H__
+#endif //__MYOCTANT_H_
 
 /*
 USAGE:

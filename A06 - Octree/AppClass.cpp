@@ -42,7 +42,8 @@ void Application::Update(void)
 	}
 
 	if (optimize) { //press z to trigger check
-		m_pRoot = new Octree(m_uOctantLevels,5,true, vector3(0), vector3(0)); //octant levels might need to be 900
+		//m_pRoot = new Octree(m_uOctantLevels,5,true, vector3(0), vector3(0)); //octant levels might need to be 900
+		m_pRoot = new Octree(m_uOctantLevels);
 	}
 
 
@@ -72,7 +73,7 @@ void Application::Display(void)
 	//display octree
 
 	if (optimize) { //display visual representation 
-		m_pRoot->Display(m_uOctantID);
+		m_pRoot->Display(m_uOctantID, individual);
 	}
 	
 	// draw a skybox

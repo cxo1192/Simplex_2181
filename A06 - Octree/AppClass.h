@@ -24,6 +24,7 @@ class Application
 	uint m_uObjects = 0; //Number of objects in the scene
 	uint m_uOctantLevels = 0; //Number of levels in the octree
 	bool optimize = false;
+	bool individual = false;
 private:
 	String m_sProgrammer = "Cameron Ostrom - cxo1192@rit.edu"; //programmer
 

@@ -20,7 +20,6 @@ class MyEntityManager
 	std::vector<MyEntity*> m_EntityList; //entities list
 	PEntity* m_mEntityArray = nullptr; //array of Entity pointers
 public:
-	//uint GetEntityCount(void);
 	std::vector<MyEntity*> GetEntityList(void);
 	/*
 	Usage: Gets the singleton pointer

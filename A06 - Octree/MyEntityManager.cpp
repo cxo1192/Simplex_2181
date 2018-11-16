@@ -16,16 +16,16 @@ void Simplex::MyEntityManager::Release(void)
 	m_uEntityCount = 0;
 	m_mEntityArray = nullptr;
 }
-std::vector<MyEntity> Simplex::MyEntityManager::GetEntityList(void) 
+MyEntity** Simplex::MyEntityManager::GetEntityList(void) 
 //MyEntity** Simplex::MyEntityManager::GetEntityArray(void)
 {
-	std::vector<MyEntity> m_EntityList; // = (std::vector<MyEntity*>)m_mEntityArray;
-	for (uint i = 0; i < m_uEntityCount; i++)
-	{
-		m_EntityList.push_back(*m_mEntityArray[i]);
-	}
+	//std::vector<MyEntity> m_EntityList; // = (std::vector<MyEntity*>)m_mEntityArray;
+	//for (uint i = 0; i < m_uEntityCount; i++)
+	//{
+	//	m_EntityList.push_back(*m_mEntityArray[i]);
+	//}
 	//= m_mEntityArray
-	return m_EntityList;
+	return m_mEntityArray;
 	//return m_mEntityArray;
 }
 Simplex::MyEntityManager* Simplex::MyEntityManager::GetInstance()

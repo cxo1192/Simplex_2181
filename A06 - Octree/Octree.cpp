@@ -168,6 +168,7 @@ void Octree::Release(void)
 	{
 		if (numChildren == 0)//is a Leaf
 		{
+			m_nCount = 0;
 			return;
 		}
 		else { 
@@ -177,8 +178,24 @@ void Octree::Release(void)
 				SafeDelete(m_pChild[i]);
 			}
 		}
-	//	m_nCount = 0;
+		//m_nCount = 0;
 	}
+
+
+	////delete m_pMeshMngr; //Pointer to Mesh manager
+	////delete m_pEntityMngr;
+	////delete m_pRigidBody;
+	////delete m_pParent;
+	//if (numChildren == 0) {
+	//	for (uint i = 0; i < 8; i++)
+	//	{
+	//		m_pChild[i]->Release();
+	//		SafeDelete(m_pChild[i]);
+	//	}
+	//	delete[] m_pChild;
+	//}
+	
+	
 }
 void Octree::Display(uint index, bool indie)
 {
@@ -213,14 +230,14 @@ void Octree::Display(uint index, bool indie)
 			if (m_pChild[i]) {
 				
 				m_pChild[i]->Display(index, indie);
-				return;
+				//return;
 			}
 		}
 		
 		return;
 	}
 
-	m_pRigidBody->AddToRenderList();
+	
 	
 	if (maxLevelSub > m_nLevel) {
 		for (uint i = 0; i < 8; i++)
@@ -228,8 +245,9 @@ void Octree::Display(uint index, bool indie)
 			if (m_pChild[i])
 				m_pChild[i]->Display(index, indie);
 		}
+		return;
 	}
-	
+	m_pRigidBody->AddToRenderList();
 	
 }
 //
@@ -339,7 +357,7 @@ void Octree::SubDivide(void)
 //		m_pChild[i]->SubDivide();
 //	}
 
-	if (m_nLevel > maxLevelSub) //change to use maxlevel instead of magic number
+	if (m_nLevel >= maxLevelSub) //change to use maxlevel instead of magic number
 		return;
 
 	vector3 v3Center = m_pRigidBody->GetCenterLocal();
@@ -361,6 +379,7 @@ void Octree::SubDivide(void)
 	{
 		m_pChild[i]->m_nLevel = m_nLevel + 1;
 		m_pChild[i]->m_pParent = this;
+		//m_pChild[i].m_
 		m_pChild[i]->SubDivide();
 	}
 

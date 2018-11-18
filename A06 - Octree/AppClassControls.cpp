@@ -113,7 +113,7 @@ void Application::ProcessKeyReleased(sf::Event a_event)
 		break;
 	case sf::Keyboard::PageUp:
 		++m_uOctantID;
-		if (m_uOctantID > -1) {
+		if (m_uOctantID >= 0) {
 			individual = true;
 		}
 		/*if (m_uOctantID >= m_pRoot->GetOctantCount())
@@ -121,8 +121,10 @@ void Application::ProcessKeyReleased(sf::Event a_event)
 		
 		break;
 	case sf::Keyboard::PageDown:
-		--m_uOctantID;
-		if (m_uOctantID < 0) {
+		if(m_uOctantID > 0)
+			--m_uOctantID;
+
+		if (m_uOctantID == 0) {
 			individual = false;
 		}
 		/*if (m_uOctantID >= m_pRoot->GetOctantCount())
@@ -130,7 +132,7 @@ void Application::ProcessKeyReleased(sf::Event a_event)
 		
 		break;
 	case sf::Keyboard::Add:
-		if (m_uOctantLevels < 4)
+		if (m_uOctantLevels < 3)
 		{
 			m_pEntityMngr->ClearDimensionSetAll();
 			++m_uOctantLevels;

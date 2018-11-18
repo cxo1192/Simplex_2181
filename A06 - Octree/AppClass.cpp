@@ -38,6 +38,7 @@ void Application::Update(void)
 
 	if (m_pRoot != nullptr) {
 		m_pEntityMngr->ClearDimensionSetAll();
+		//m_pRoot->~Octree();
 		SafeDelete(m_pRoot);
 	}
 

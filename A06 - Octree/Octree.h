@@ -42,7 +42,7 @@ class Octree
 	static uint m_nCount;
 	Octree* m_pParent = nullptr;
 	Octree* m_pChild[8];
-	uint m_nLevel = 0;
+	uint m_nLevel = 0; //level deep of current octant
 
 	
 
@@ -50,7 +50,7 @@ public:
 	void Display(uint id, bool ind);
 	/*void DisplayHelper(void);
 	void DisplayHelper1(void);*/
-	void IsColliding(uint rbi);
+	void IsColliding(/*uint rbi*/);
 	void SubDivide(void);
 	//void Octree(vector3 m_v3Size);
 	/*

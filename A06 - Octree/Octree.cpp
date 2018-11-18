@@ -59,6 +59,7 @@ void Octree::Init(void)
 	m_nData = 0;
 	m_pMeshMngr = MeshManager::GetInstance();
 	m_pEntityMngr = MyEntityManager::GetInstance();
+	
 	//IsColliding();
 	for (uint i = 0; i < 8; i++)
 	{
@@ -127,6 +128,7 @@ Octree::Octree(uint mlev) //ctor
 	//}
 
 	Init();
+	m_nCount = 0;
 	maxLevelSub = mlev;
 	MyEntity** l_Entity_List = m_pEntityMngr->GetEntityList();
 	uint iEntityCount = m_pEntityMngr->GetEntityCount();
@@ -145,6 +147,7 @@ Octree::Octree(uint mlev) //ctor
 	m_iID = m_nCount;
 	//m_iID = m_nCount;
 	SubDivide();
+	IsColliding();
 }
 
 Octree::Octree(vector3 a_v3Center, float a_fSize)
@@ -156,6 +159,7 @@ Octree::Octree(vector3 a_v3Center, float a_fSize)
 	m_pRigidBody = new MyRigidBody(v3MaxMin_list);
 	m_nCount++;
 	m_iID = m_nCount;
+	IsColliding();
 }
 
 void Octree::Release(void)
@@ -173,6 +177,7 @@ void Octree::Release(void)
 				SafeDelete(m_pChild[i]);
 			}
 		}
+	//	m_nCount = 0;
 	}
 }
 void Octree::Display(uint index, bool indie)
@@ -217,7 +222,7 @@ void Octree::Display(uint index, bool indie)
 
 	m_pRigidBody->AddToRenderList();
 	
-	if (maxLevelSub > 0) {
+	if (maxLevelSub > m_nLevel) {
 		for (uint i = 0; i < 8; i++)
 		{
 			if (m_pChild[i])
@@ -249,7 +254,7 @@ void Octree::Display(uint index, bool indie)
 //	}
 //	
 //}
-void Octree::IsColliding(uint rBodyIndex) //used to see if entity is colliding with this cube
+void Octree::IsColliding(/*uint rBodyIndex*/) //used to see if entity is colliding with this cube
 {
 	////std::vector<MyEntity> l_Entity_List = m_pEntityMngr->GetEntityList();
 	////uint iEntityCount = l_Entity_List.size();

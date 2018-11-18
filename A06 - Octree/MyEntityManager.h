@@ -291,8 +291,8 @@ private:
 
 #endif //__MYENTITYMANAGER_H_
 
-/*
-USAGE:
-ARGUMENTS: ---
-OUTPUT: ---
-*/
+/**/
+//USAGE:
+//ARGUMENTS: ---
+//OUTPUT: ---
+//*/

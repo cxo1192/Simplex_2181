@@ -8,31 +8,17 @@ using namespace std;
 using namespace Simplex;
 class Octree
 {
-	//vector<int> containedEntitiesByIndex;
-	//vector3 maxCorner;
-	//vector3 minCorner;
-	//vector3 octCenter;
-	//vector3 octSize;
+	
 	static uint octantCount; //number of octants in total
-	static uint leavesCount; //number of leaves
+	//static uint leavesCount; //number of leaves
 	static uint maxLevelSub; //maximum level of subdivision
 	static uint entityCount; //number of entities
-	//uint currentLevel = 0; //number of levels deep
-	//uint currentLevelEntityCount = 0; //number of entities
-	//std::vector<uint> entityList; //entities in this octant
-	//std::vector<Octree*> childrenOfRoot;
-	//Octree* m_pParent = nullptr;
-	//Octree* m_pChild[8];
+
 	static Octree* root;
-	//uint m_ID = 0; //current octant ID #
+	
 	uint numChildren = 0;
 
-	////generic
-	//int m_nData = 0; //Number of elements in the list of elements
-	//std::vector<int> m_lData; //list of elements
-	//MeshManager * m_pMeshMngr = nullptr;
-	//MyEntityManager * m_pEntityMngr = nullptr;
-	//MyRigidBody* m_pRigidBody = nullptr;
+	
 	int m_nData = 0; //Number of elements in the list of elements
 	std::vector<int> m_lData; //list of elements
 	MeshManager* m_pMeshMngr = nullptr; //Pointer to Mesh manager
@@ -43,10 +29,17 @@ class Octree
 	Octree* m_pParent = nullptr;
 	Octree* m_pChild[8];
 	uint m_nLevel = 0; //level deep of current octant
+	//std::vector<MyEntity*> thisEntityList;
+	MyEntity** Arr = nullptr;
+	int ArrCount = 0;
+	int maxCount = 1000;
+
+
 
 	
 
 public:
+	void AddArr(MyEntity* adder);
 	void Display(uint id, bool ind);
 	/*void DisplayHelper(void);
 	void DisplayHelper1(void);*/

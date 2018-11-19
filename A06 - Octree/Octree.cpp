@@ -3,62 +3,21 @@
 using namespace Simplex;
 //  Octree
  uint Octree::octantCount = 0; //number of octants in total
- uint Octree::leavesCount = 0; //number of leaves
+// uint Octree::leavesCount = 0; //number of leaves
  uint Octree::maxLevelSub = 0; //maximum level of subdivision
  uint Octree::entityCount = 0; //number of entities
  uint Octree::m_nCount = 0;
- Octree* Octree::root = nullptr;
+// Octree* Octree::root = nullptr;
 
 void Octree::Init(void)
 {
-	//m_nData = 0;
-	//m_pMeshMngr = MeshManager::GetInstance();
-	//m_pEntityMngr = MyEntityManager::GetInstance();
-	//std::vector<MyEntity> l_Entity_List = m_pEntityMngr->GetEntityList();
-	//uint iEntityCount = l_Entity_List.size();
-	//std::vector<vector3> v3MaxMin_list;
-
-	//for (uint i = 0; i < iEntityCount; ++i)
-	//{
-	//	MyRigidBody* pRB = l_Entity_List[i].GetRigidBody();
-	//	vector3 v3Min = pRB->GetMinGlobal();
-	//	vector3 v3Max = pRB->GetMaxGlobal();
-	//	v3MaxMin_list.push_back(v3Min);
-	//	v3MaxMin_list.push_back(v3Max);
-	//	/*vector3 v3Position = pRB->GetCenterGlobal();
-
-	//	if (v3Position.x < 0.0f)
-	//	{
-	//	if (v3Position.x < -17.0f)
-	//	m_pEntityMngr->AddDimension(-1, 1);
-	//	else
-	//	m_pEntityMngr->AddDimension(-1, 2);
-	//	}
-	//	else if (v3Position.x > 0.0f)
-	//	{
-	//	if (v3Position.x > 17.0f)
-	//	m_pEntityMngr->AddDimension(-1, 3);
-	//	else
-	//	m_pEntityMngr->AddDimension(-1, 4);
-	//	}*/
-	//	for (size_t i = 0; i < 8; i++)
-	//	{
-	//		m_pChild[i] = nullptr;
-	//	}
-	//	m_pRigidBody = new MyRigidBody(v3MaxMin_list);
-	//}
-
-
-	/////////////////////////////////////////////////
-	//m_pEntityMngr = MyEntityManager::GetInstance();
-	//m_pMeshMngr = MeshManager::GetInstance();
-
-	//m_ID = octantCount;
-	//octantCount += 1;
-	////////////////////////////////////////////////
+	
 	m_nData = 0;
 	m_pMeshMngr = MeshManager::GetInstance();
 	m_pEntityMngr = MyEntityManager::GetInstance();
+	m_iID = m_nCount;
+	m_nCount++;
+
 	
 	//IsColliding();
 	for (uint i = 0; i < 8; i++)
@@ -70,65 +29,9 @@ void Octree::Init(void)
 //Octree::Octree(uint maxLev, uint entCount, bool isRoot, vector3 newCent, vector3 newSize)
 Octree::Octree(uint mlev) //ctor
 {
-	//Init();
-	//if (isRoot) {
-	//	root = this;
-	//	maxLevelSub = maxLev;
-	//	entityCount = entCount;
-	//	maxCorner = minCorner = m_pEntityMngr->GetRigidBody()->GetCenterGlobal();
-	//	currentLevelEntityCount = m_pEntityMngr->GetEntityCount();
-
-	//	for (uint i = 0; i < currentLevelEntityCount; i++)
-	//	{
-	//		entityList.push_back(i);
-	//		vector3 tempMin = m_pEntityMngr->GetRigidBody()->GetMinGlobal();
-	//		vector3 tempMax = m_pEntityMngr->GetRigidBody()->GetMaxGlobal();
-
-	//		//set min and max
-	//		if (tempMin.x < minCorner.x) {
-	//			minCorner.x = tempMin.x;
-	//		}
-
-	//		if (tempMax.x > maxCorner.x) {
-	//			maxCorner.x = tempMax.x;
-	//		}
-
-	//		if (tempMin.y < minCorner.y) {
-	//			minCorner.y = tempMin.y;
-	//		}
-
-	//		if (tempMax.y > maxCorner.y) {
-	//			maxCorner.y = tempMax.y;
-	//		}
-
-	//		if (tempMin.z < minCorner.z) {
-	//			minCorner.z = tempMin.z;
-	//		}
-
-	//		if (tempMax.z > maxCorner.z) {
-	//			maxCorner.z = tempMax.z;
-	//		}
-	//	}
-
-
-	//	octCenter = (minCorner + maxCorner) / 2.0f;
-	//	octSize = maxCorner - minCorner;
-
-
-	//	SubDivide();
-
-	//	ConfigureEntityDimensions();
-
-	//}
-	//else {//leaves
-	//	octCenter = newCent;
-	//	octSize = newSize;
-	//	maxCorner = newCent + newSize / 2.0f;
-	//	minCorner = newCent - newSize / 2.0f;
-	//}
-
+	
 	Init();
-	m_nCount = 0;
+	//m_nCount = 0;
 	maxLevelSub = mlev;
 	MyEntity** l_Entity_List = m_pEntityMngr->GetEntityList();
 	uint iEntityCount = m_pEntityMngr->GetEntityCount();
@@ -140,11 +43,12 @@ Octree::Octree(uint mlev) //ctor
 		vector3 v3Max = pRG->GetMaxGlobal();
 		v3MaxMin_list.push_back(v3Min);
 		v3MaxMin_list.push_back(v3Max);
+		//thisEntityList.push_back((l_Entity_List[i]));
+		AddArr(l_Entity_List[i]);
 	}
 
 	m_pRigidBody = new MyRigidBody(v3MaxMin_list);
 	m_pRigidBody->MakeCubic();
-	m_iID = m_nCount;
 	//m_iID = m_nCount;
 	SubDivide();
 	IsColliding();
@@ -157,8 +61,15 @@ Octree::Octree(vector3 a_v3Center, float a_fSize)
 	v3MaxMin_list.push_back(a_v3Center - vector3(a_fSize));
 	v3MaxMin_list.push_back(a_v3Center + vector3(a_fSize));
 	m_pRigidBody = new MyRigidBody(v3MaxMin_list);
-	m_nCount++;
-	m_iID = m_nCount;
+	MyEntity** l_Entity_List = m_pEntityMngr->GetEntityList();
+	uint iEntityCount = m_pEntityMngr->GetEntityCount();
+	for (uint i = 0; i < iEntityCount; ++i)
+	{
+		//thisEntityList.push_back(l_Entity_List[i]);
+		AddArr(l_Entity_List[i]);
+	}
+	//m_nCount++;
+//	m_iID = m_nCount;
 	IsColliding();
 }
 
@@ -179,39 +90,47 @@ void Octree::Release(void)
 			}
 		}
 		//m_nCount = 0;
+		delete Arr;
+	}
+	
+}
+void Octree::AddArr(MyEntity * adder)
+{
+	if (Arr == nullptr) {
+		Arr = new MyEntity*[1000];
+		Arr[0] = adder;
+		ArrCount++;
 	}
 
+	if (ArrCount + 1 > maxCount) {
+		
+		//int tempCount = ;
+		//MyEntity** temp = new MyEntity*[ArrCount];
+		MyEntity** temp = Arr;
+		
+		Arr = new MyEntity*[ArrCount * 2];
 
-	////delete m_pMeshMngr; //Pointer to Mesh manager
-	////delete m_pEntityMngr;
-	////delete m_pRigidBody;
-	////delete m_pParent;
-	//if (numChildren == 0) {
-	//	for (uint i = 0; i < 8; i++)
-	//	{
-	//		m_pChild[i]->Release();
-	//		SafeDelete(m_pChild[i]);
-	//	}
-	//	delete[] m_pChild;
-	//}
-	
-	
+		for (uint i = 0; i < ArrCount; i++)
+		{
+			Arr[i] = temp[i];
+			//temp[i] = Arr[i];
+		}
+		
+		
+		
+		maxCount *= 2;
+
+		Arr[ArrCount] = adder;
+		ArrCount++;
+
+	}
+	else {
+		Arr[ArrCount] = adder;
+		ArrCount++;
+	}
 }
 void Octree::Display(uint index, bool indie)
 {
-	//m_pRigidBody->AddToRenderList();
-	//m_pMeshMngr->AddWireCubeToRenderList(glm::scale(vector3(70)), C_YELLOW);
-
-
-
-	//if (index >= octantCount) {
-	//	DisplayHelper();
-	//	return;
-	//}
-	//
-	//	//childrenOfRoot[index]
-	//DisplayHelper1();
-
 	if (indie) {
 		//use index to display specific box
 		for (uint i = 0; i < 8; i++)
@@ -250,28 +169,7 @@ void Octree::Display(uint index, bool indie)
 	m_pRigidBody->AddToRenderList();
 	
 }
-//
-//void Octree::DisplayHelper() { //displays all cubes in the octree
-//	if (numChildren == 0)
-//	{
-//		DisplayHelper1();
-//	}
-//	else {
-//		for (uint i = 0; i < numChildren; ++i)
-//		{
-//			m_pChild[i]->DisplayHelper();
-//		}
-//	}
-//}
-//void Octree::DisplayHelper1() { //displays one cube
-//	if (this == root) {
-//		m_pMeshMngr->AddWireCubeToRenderList(/*glm::translate(IDENTITY_M4, octCenter) **/ glm::scale(IDENTITY_M4, octSize * 70.0f), C_YELLOW);
-//	}
-//	else {
-//		m_pMeshMngr->AddWireCubeToRenderList(glm::translate(IDENTITY_M4, octCenter) * glm::scale(IDENTITY_M4, octSize * 70.0f), C_YELLOW);
-//	}
-//	
-//}
+
 void Octree::IsColliding(/*uint rBodyIndex*/) //used to see if entity is colliding with this cube
 {
 	////std::vector<MyEntity> l_Entity_List = m_pEntityMngr->GetEntityList();
@@ -297,7 +195,11 @@ void Octree::IsColliding(/*uint rBodyIndex*/) //used to see if entity is collidi
 	//{
 	//	return false;
 	//}
-	MyEntity** l_Entity_List = m_pEntityMngr->GetEntityList();
+
+
+
+	//////////////////////////////////////////////////////////////////
+	/*MyEntity** l_Entity_List = m_pEntityMngr->GetEntityList();
 	uint iEntityCount = m_pEntityMngr->GetEntityCount();
 	for (uint i = 0; i < iEntityCount; ++i)
 	{
@@ -306,57 +208,46 @@ void Octree::IsColliding(/*uint rBodyIndex*/) //used to see if entity is collidi
 		{
 			l_Entity_List[i]->AddDimension(m_iID);
 		}
+	}*/
+
+	/////////////////////////////////////////////////////
+	//MyEntity** l_Entity_List = m_pEntityMngr->GetEntityList();
+	//uint iEntityCount = m_pEntityMngr->GetEntityCount();
+	//if (numChildren == 0) {
+	//	for (uint i = 0; i < iEntityCount; i++)
+	//	{
+	//		//l_Entity_List[i]->AddDimension(m_iID);
+	//		/*uint indx = m_pEntityMngr->GetEntityIndex(l_Entity_List[i]->GetUniqueID());
+	//		m_pEntityMngr->AddDimension(indx, m_iID);*/
+	//		m_pEntityMngr->AddDimension(indecies[i], m_iID);
+	//	}
+	//}
+	//else {
+	//	for (uint i = 0; i < numChildren; i++)
+	//	{
+	//		m_pChild[i]->IsColliding();
+	//	}
+	//}
+	/////////////////////////////////////////////
+	//Clear all collisions
+	for (uint i = 0; i < ArrCount; i++)
+	{
+		//thisEntityList[i]->ClearCollisionList();
+		Arr[i]->ClearCollisionList();
 	}
+
+	//check collisions
+	for (uint i = 0; i < ArrCount - 1; i++)
+	{
+		for (uint j = i + 1; j < ArrCount; j++)
+		{
+			Arr[i]->IsColliding(Arr[j]);
+		}
+	}
+
 }
 void Octree::SubDivide(void)
 {
-//	//needs to know if its a root or not 
-//	/*for (uint i = 0; i < 8; i++)
-//	{
-//		m_pChild[i] = new Octree(,,false,,);
-//	}*/
-//
-//	if (currentLevel >= maxLevelSub) //|| !containsmorethanentitycount
-//	{
-//		root->childrenOfRoot.push_back(this);
-//		leavesCount += 1;
-//		return;
-//	}
-//
-//	//if (numChildren == 0) //subdivide the last level
-//	//{
-//	//	return;
-//	//}
-//
-//	m_pChild[0] = new Octree(maxLevelSub, entityCount, false, octCenter + vector3(-octSize.x / 4.0f, octSize.y / 4.0f, -octSize.z / 4.0f), octSize / 2.0f);
-//	m_pChild[1] = new Octree(maxLevelSub, entityCount, false, octCenter + vector3(-octSize.x / 4.0f, octSize.y / 4.0f, octSize.z / 4.0f), octSize / 2.0f);
-//	m_pChild[2] = new Octree(maxLevelSub, entityCount, false, octCenter + vector3(-octSize.x / 4.0f, -octSize.y / 4.0f, -octSize.z / 4.0f), octSize / 2.0f);
-//	m_pChild[3] = new Octree(maxLevelSub, entityCount, false, octCenter + vector3(-octSize.x / 4.0f, -octSize.y / 4.0f, octSize.z / 4.0f), octSize / 2.0f);
-//	m_pChild[4] = new Octree(maxLevelSub, entityCount, false, octCenter + vector3(octSize.x / 4.0f, -octSize.y / 4.0f, -octSize.z / 4.0f), octSize / 2.0f);
-//	m_pChild[5] = new Octree(maxLevelSub, entityCount, false, octCenter + vector3(octSize.x / 4.0f, -octSize.y / 4.0f, octSize.z / 4.0f), octSize / 2.0f);
-//	m_pChild[6] = new Octree(maxLevelSub, entityCount, false, octCenter + vector3(octSize.x / 4.0f, octSize.y / 4.0f, -octSize.z / 4.0f), octSize / 2.0f);
-//	m_pChild[7] = new Octree(maxLevelSub, entityCount, false, octCenter + vector3(octSize.x / 4.0f, octSize.y / 4.0f, octSize.z / 4.0f), octSize / 2.0f);
-//
-//	numChildren = 8;
-//
-//	for (uint i = 0; i < numChildren; i++)
-//	{
-//		m_pChild[i]->m_pParent = this;
-//		m_pChild[i]->currentLevel = currentLevel + 1;
-//		m_pChild[i]->root = root;
-//
-//		for (uint j = 0; j < currentLevelEntityCount; j++)
-//		{
-//			if (m_pChild[i]->IsColliding(entityList[j]))
-//			{
-//				m_pChild[i]->entityList.push_back(entityList[j]);
-//			}
-//		}
-//
-//		m_pChild[i]->currentLevelEntityCount = m_pChild[i]->entityList.size();
-//		m_pChild[i]->SubDivide();
-//	}
-
 	if (m_nLevel >= maxLevelSub) //change to use maxlevel instead of magic number
 		return;
 
@@ -390,17 +281,12 @@ void Octree::SubDivide(void)
 
 Octree::Octree(Octree const& other)
 {
-	/*Init();
+	Init();
 
-	currentLevel = other.currentLevel;
-	octSize = other.octSize;
-	octCenter = other.octCenter;
-	minCorner = other.minCorner;
-	maxCorner = other.maxCorner;
 	m_pParent = other.m_pParent;
 	Release();
 	numChildren = other.numChildren;
-	currentLevelEntityCount = other.currentLevelEntityCount;
+	/*currentLevelEntityCount = other.currentLevelEntityCount;*/
 	root = other.root;
 	
 	for (uint i = 0; i < numChildren; i++)
@@ -408,19 +294,7 @@ Octree::Octree(Octree const& other)
 		m_pChild[i] = new Octree(*other.m_pChild[i]);
 	}
 
-	for (uint i = 0; i < currentLevelEntityCount; i++)
-	{
-		entityList.push_back(other.entityList[i]);
-	}
-
-	if (this == root)
-	{
-		float cCount = other.childrenOfRoot.size();
-		for (uint i = 0; i < cCount; i++)
-		{
-			childrenOfRoot.push_back(other.childrenOfRoot[i]);
-		}
-	}*/
+	
 
 }
 Octree& Octree::operator=(Octree const& other)

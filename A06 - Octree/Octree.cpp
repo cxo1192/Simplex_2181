@@ -7,7 +7,7 @@ using namespace Simplex;
  uint Octree::maxLevelSub = 0; //maximum level of subdivision
  uint Octree::entityCount = 0; //number of entities
  uint Octree::m_nCount = 0;
-// Octree* Octree::root = nullptr;
+ Octree* Octree::root = nullptr;
 
 void Octree::Init(void)
 {
